@@ -38,7 +38,10 @@ namespace MDACS.Server
 
                 if (!this.handlers.ContainsKey(request.url_absolute))
                 {
-                    throw new NotImplementedException();
+                    await encoder.WriteQuickHeader(404, "Not Found");
+                    await encoder.BodyWriteSingleChunk("The request resource is not avaliable.");
+
+                    return Task.CompletedTask;
                 }
 
                 return await this.handlers[request.url_absolute](this.user_argument, request, body, encoder);

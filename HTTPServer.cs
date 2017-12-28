@@ -28,7 +28,7 @@ namespace MDACS.Server
         private String cert_private_key_password;
         private C handler;
 
-        public HTTPServer(C handler, String pfx_cert_path, String cert_private_key_password)
+        public HTTPServer(C handler, String pfx_cert_path = null, String cert_private_key_password = null)
         {
             this.handler = handler;
             this.pfx_cert_path = pfx_cert_path;
@@ -40,12 +40,25 @@ namespace MDACS.Server
             listener.Server.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
             listener.Start();
 
-            var x509 = new X509Certificate2(pfx_cert_path, cert_private_key_password);
+            X509Certificate2 x509 = null;
+
+            if (pfx_cert_path != null)
+            {
+                x509 = new X509Certificate2(pfx_cert_path, cert_private_key_password);
+            }
 
             while (true)
             {
+                SslStream ssl_sock = null;
+
                 var client = listener.AcceptTcpClient();
-                var ssl_sock = new SslStream(client.GetStream(), false);
+                var client_stream = client.GetStream();
+
+
+                if (x509 != null)
+                {
+                    ssl_sock = new SslStream(client_stream, false);
+                }
 
                 Console.WriteLine("Have new client.");
 
@@ -56,18 +69,34 @@ namespace MDACS.Server
 
                     try
                     {
-                        await ssl_sock.AuthenticateAsServerAsync(x509);
+                        HTTPDecoder http_decoder;
+                        HTTPEncoder http_encoder;
 
-                        var http_decoder = new HTTPDecoder(ssl_sock);
-                        var http_encoder = new HTTPEncoder(ssl_sock);
+                        if (ssl_sock != null)
+                        {
+                            await ssl_sock.AuthenticateAsServerAsync(x509);
+
+                            http_decoder = new HTTPDecoder(ssl_sock);
+                            http_encoder = new HTTPEncoder(ssl_sock);
+                        } else
+                        {
+                            http_decoder = new HTTPDecoder(client_stream);
+                            http_encoder = new HTTPEncoder(client_stream);
+                        }
+
                         var http_client = handler.CreateClient(http_decoder, http_encoder);
 
                         Console.WriteLine("Handling client.");
 
                         await http_client.Handle();
                         Console.WriteLine("closing everything possible");
-                        ssl_sock.Close();
-                        ssl_sock.Dispose();
+
+                        if (ssl_sock != null)
+                        {
+                            ssl_sock.Close();
+                            ssl_sock.Dispose();
+                        }
+
                         client.Close();
                         client.Dispose();
                         Console.WriteLine("closed everything possible");
