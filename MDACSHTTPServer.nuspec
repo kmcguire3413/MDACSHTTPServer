@@ -2,14 +2,16 @@
 <package >
   <metadata>
     <id>MDACS.Server</id>
-    <version>0.2.0</version>
+    <version>0.2.1</version>
     <title>MDCAS Light-weight HTTP/HTTPS Server</title>
     <authors>leonard.kevin.mcguire.jr@gmail.com</authors>
     <owners>leonard.kevin.mcguire.jr@gmail.com</owners>
     <licenseUrl>https://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>
-    Provides an HTTPS (HTTP planned) asynchronous ready light-weight server. This is an initial release so the server is likely to have minor bugs and missing needed features.
+    Provides an HTTPS (HTTP planned) asynchronous ready light-weight server. 
+    
+    _This is an initial release. The server may have minor bugs and missing features._
     </description>
     <releaseNotes>Initial release.</releaseNotes>
     <copyright>Copyright 2017</copyright>
