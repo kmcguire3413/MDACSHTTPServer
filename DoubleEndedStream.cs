@@ -9,6 +9,54 @@ using System.Threading.Tasks;
 
 namespace MDACS.Server
 {
+    public class SemaphoreSaturateSlim
+    {
+        private int start;
+        private int max;
+        private SemaphoreSlim sema;
+
+        /// <summary>
+        /// Creates a special semaphore that never throws an exception when a release would exceed the specified `max`. 
+        /// Instead, the current count saturates at the maximum value.
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="max"></param>
+        public SemaphoreSaturateSlim(int start, int max)
+        {
+            this.start = start;
+            this.max = max;
+            this.sema = new SemaphoreSlim(this.start, this.max);
+        }
+
+        /// <summary>
+        /// Adds one to the semaphore counter and saturates when the counter reached the maximum instead of throwing an
+        /// exception like the `SemaphoreSlim`.
+        /// </summary>
+        public void Release()
+        {
+            // The lock is only for threads that call this method. It ensures that we do not exceed
+            // the maximum count for the semaphore and by doing so it ensures that we do not need to
+            // catch any exceptions. I prefer to not throw exceptions in normal code paths if I can
+            // write code to avoid doing it. However, could the exception be more effcient in this case?
+            lock (this.sema)
+            {
+                if (this.sema.CurrentCount < this.max)
+                {
+                    this.sema.Release();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Asynchronously wait on this semaphore.
+        /// </summary>
+        /// <returns></returns>
+        public async Task WaitOneAsync()
+        {
+            await this.sema.WaitAsync();
+        }
+    }
+
     public class DoubleEndedStream : Stream, IDisposable
     {
         class Chunk
@@ -18,7 +66,7 @@ namespace MDACS.Server
             public int actual;
         }
 
-        AutoResetEvent rd;
+        SemaphoreSaturateSlim rd;
         SemaphoreSlim wh;
         Queue<Chunk> chunks;
         long used;
@@ -29,7 +77,7 @@ namespace MDACS.Server
         {
             chunks = new Queue<Chunk>();
             wh = new SemaphoreSlim(0);
-            rd = new AutoResetEvent(false);
+            rd = new SemaphoreSaturateSlim(0, 1);
             pos = 0;
             used = 0;
             end_reached = false;
@@ -96,20 +144,7 @@ namespace MDACS.Server
         /// <returns></returns>
         public async Task WaitForReadAsync()
         {
-            // Hopefully, this does not always spawn another thread, but I believe it will have too and I wish
-            // a more efficient and true asynchronous way could be divised.
-            await Task.Run(() =>
-            {
-                WaitForRead();
-            });
-        }
-
-        /// <summary>
-        /// Waits for a successful read to happen on this object then returns control.
-        /// </summary>
-        public void WaitForRead()
-        {
-            rd.WaitOne();
+            await rd.WaitOneAsync();
         }
 
         public override int Read(byte[] buffer, int offset, int count)
@@ -148,7 +183,7 @@ namespace MDACS.Server
 
                 var chunk = chunks.Peek();
 
-                rd.Set();
+                rd.Release();
 
                 if (chunk.data == null)
                 {

@@ -8,7 +8,9 @@
     <owners>leonard.kevin.mcguire.jr@gmail.com</owners>
     <licenseUrl>https://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Provides an HTTPS (HTTP planned) asynchronous ready light-weight server. This is an initial release so the server is likely to have minor bugs and missing needed features.</description>
+    <description>
+    Provides an HTTPS (HTTP planned) asynchronous ready light-weight server. This is an initial release so the server is likely to have minor bugs and missing needed features.
+    </description>
     <releaseNotes>Initial release.</releaseNotes>
     <copyright>Copyright 2017</copyright>
     <tags>https async lightweight</tags>

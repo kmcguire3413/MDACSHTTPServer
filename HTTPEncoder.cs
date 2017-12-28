@@ -97,28 +97,20 @@ namespace MDACS.Server
             {
                 throw new Exception("State should have been sending of headers, but was other.");
             }
-
-            if (header == null)
-            {
-                throw new Exception("Headers must be set first.");
-            }
-
-            /*
-
-            if (header.ContainsKey("content-length"))
-            {
-                header.Remove("content-length");
-                //header["content-length"] = length.ToString();
-            } else
-            {
-                //header.Add("content-length", length.ToString());
-            }
+            
+            //if (header.ContainsKey("content-length"))
+            //{
+                //header.Remove("content-length");
+            //    header["content-length"] = length.ToString();
+            //} else
+            //{
+            //    header.Add("content-length", length.ToString());
+            //}
 
             //header["transfer-encoding"] = "bytes";
 
-            await DoHeaders();
+            //await DoHeaders();
 
-            */
 #if DEBUG_HTTP_ENCODER
             Console.WriteLine($"{this}.WriteSingleChunk: Sending single chunk.");
 #endif
@@ -138,8 +130,16 @@ namespace MDACS.Server
 
             await s.FlushAsync();*/
 
+            // This will implicitly send the headers.
             await BodyWriteFirstChunk(chunk, offset, length);
-            await BodyWriteNoChunk();
+
+            // If there is a total content length of zero for this call then the above
+            // method just auto-terminated the chunked encoding response, therefore, there
+            // is no need to call this method.
+            if (length > 0)
+            {
+                await BodyWriteNoChunk();
+            }
 
             state = HTTPEncoderState.SendingHeaders;
         }
@@ -148,7 +148,12 @@ namespace MDACS.Server
         {
             if (header == null)
             {
-                throw new Exception("Headers must be set first.");
+                throw new Exception("A valid header must have been set first.");
+            }
+
+            if (state != HTTPEncoderState.SendingHeaders)
+            {
+                throw new Exception("Expected to send headers but state was not as expected.");
             }
 
             if (header.ContainsKey("transfer-encoding"))

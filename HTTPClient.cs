@@ -16,9 +16,10 @@ namespace MDACS.Server
         public AsyncManualResetEvent done;
         public bool close_connection;
 
-        public Stream stream_being_used;
-        public bool sent_single_chunk;
-        public bool sent_header;
+        private Stream stream_being_used;
+        private bool sent_single_chunk;
+        private bool sent_header;
+        private Task runner;
 
         public ProxyHTTPEncoder(HTTPEncoder encoder, bool close_connection)
         {
@@ -48,6 +49,13 @@ namespace MDACS.Server
                     await BodyWriteSingleChunk("");
                 }
             }
+
+            // At times, the runner is still copying out data. If we exit too quickly
+            // we can slam the connection closed before the runner has finished.
+            if (runner != null)
+                await runner;
+
+            done.Set();
         }
 
         public async Task WriteQuickHeader(int code, String text)
@@ -96,6 +104,8 @@ namespace MDACS.Server
             await this.ready.WaitAsync();
             Console.WriteLine("!!! ready was good");
             await encoder.WriteHeader(header);
+
+            sent_header = true;
         }
 
         public async Task BodyWriteSingleChunk(String chunk)
@@ -115,9 +125,12 @@ namespace MDACS.Server
         {
             await this.ready.WaitAsync();
             await this.encoder.BodyWriteSingleChunk(chunk, offset, length);
-            this.done.Set();
 
+            // Must set this before the call to `done.Set()` else it creates a very subtle race
+            // condition type bug.
             this.sent_single_chunk = true;
+
+            this.done.Set();
         }
 
         private async Task BodyWriteStreamInternal(Stream inpstream)
@@ -188,11 +201,11 @@ namespace MDACS.Server
             await this.ready.WaitAsync();
 
             // Control needs to return to the caller. Do not `await` the result of this task.
-            var runner = Task.Run(async () => {
+            this.runner = Task.Run(async () => {
                 await BodyWriteStreamInternal(inpstream);
             });
 
-            return runner;
+            return this.runner;
         }
     }
 
@@ -345,7 +358,7 @@ namespace MDACS.Server
 
                     Console.WriteLine("phe is done");
 
-                    phe.Death();
+                    await phe.Death();
 
                     // Remove it, and signal the next to go.
                     q.Dequeue();
@@ -481,6 +494,7 @@ namespace MDACS.Server
                     // BUG, TODO: unsufficient... will deadlock if nothing is reading the `body` as the buffer may fill
                     //       for the body
                     // Do not block while waiting.
+                    Console.WriteLine("waiting for body_reading_task to complete");
                     await body_reading_task;
 
                     if (body_reading_task.Exception != null)
@@ -498,7 +512,7 @@ namespace MDACS.Server
             runner_exit = true;
             // Ensure the runner can continue.
             qchanged.Release();
-            runner_task.Wait();
+            await runner_task;
 
             Console.WriteLine("done waiting on runner; now exiting handler");
 
