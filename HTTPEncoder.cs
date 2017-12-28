@@ -60,7 +60,7 @@ namespace MDACS.Server
             header.Add("Access-Control-Allow-Headers", "content-type");
 
 #if DEBUG_HTTP_ENCODER
-            Console.WriteLine("{0}.DoHeaders: Sending headers.", this);
+            Console.WriteLine($"{this}.DoHeaders: Sending headers.");
 #endif
             String _line = String.Format("HTTP/1.1 {0} {1}\r\n", response_code, response_text);
             byte[] _line_bytes = Encoding.UTF8.GetBytes(_line);
@@ -120,7 +120,7 @@ namespace MDACS.Server
 
             */
 #if DEBUG_HTTP_ENCODER
-            Console.WriteLine("{0}.WriteSingleChunk: Sending single chunk.", this);
+            Console.WriteLine($"{this}.WriteSingleChunk: Sending single chunk.");
 #endif
             // TODO: fix incompatability with Python pycommon or fix pycommon
             // BUG: fix incompatability with Python pycommon or fix pycommon
@@ -165,7 +165,7 @@ namespace MDACS.Server
             await DoHeaders();
 
 #if DEBUG_HTTP_ENCODER
-            Console.WriteLine("{0}.BodyWriteFirstChunk: Sending the first chunk.", this);
+            Console.WriteLine($"{this}.BodyWriteFirstChunk: Sending the first chunk.");
 #endif
 
             byte[] tmp = new byte[2];
@@ -195,7 +195,7 @@ namespace MDACS.Server
             }
 
 #if DEBUG_HTTP_ENCODER
-            Console.WriteLine("{0}.BodyWriteNextChunk: Writing chunk.", this);
+            Console.WriteLine($"{this}.BodyWriteNextChunk: Writing chunk.");
 #endif
 
             var chunk_header_str = String.Format("{0:x}\r\n", length);
@@ -221,7 +221,7 @@ namespace MDACS.Server
             }
 
 #if DEBUG_HTTP_ENCODER
-            Console.WriteLine("{0}.BodyWriteNoChunk: Writing last chunk.", this);
+            Console.WriteLine($"{this}.BodyWriteNoChunk: Writing last chunk.");
 #endif
 
             byte[] chunk_header = Encoding.UTF8.GetBytes("0\r\n\r\n");

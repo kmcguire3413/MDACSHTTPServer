@@ -174,7 +174,7 @@ namespace MDACS.Server
 
                 if (line_utf8_str.Length > 0)
                 {
-                    Console.WriteLine("line_utf8_str={0}", line_utf8_str);
+                    Console.WriteLine($"line_utf8_str={line_utf8_str}");
                     header.Add(line_utf8_str);
                 }
             } while (line_utf8_str.Length > 0);
@@ -203,16 +203,14 @@ namespace MDACS.Server
                             var line_bytes = await s_helper.ReadLine();
                             var line = Encoding.UTF8.GetString(line_bytes).TrimEnd();
 
-                            Console.WriteLine("HTTPDecoder.ChunkedDecoder: line={0}", line);
+                            Console.WriteLine($"HTTPDecoder.ChunkedDecoder: line={line}");
 
                             if (line.Length == 0)
                             {
                                 continue;
                             }
 
-                            Console.WriteLine("AAA");
                             int chunk_size = Convert.ToInt32(line, 16);
-                            Console.WriteLine("BBB");
 
                             if (chunk_size == 0)
                             {
@@ -221,20 +219,16 @@ namespace MDACS.Server
                                 break;
                             }
 
-                            Console.WriteLine("CCC");
-
                             // Wait without polling for the buffer to decrease from reading from it.
                             while (os.GetUsed() + chunk_size > max_buffer)
                             {
-                                Console.WriteLine("AAA");
                                 await os.WaitForReadAsync();
-                                Console.WriteLine("BBB");
                             }
 
                             var chunk = await s_helper.ReadSpecificSize(chunk_size);
-                            os.Write(chunk, 0, chunk.Length);
+
+                            await os.WriteAsync(chunk, 0, chunk.Length);
                         } while (true);
-                        Console.WriteLine("chunked stream done");
                     });
 #pragma warning restore 4014
                     return (os, spawned_task);
@@ -269,7 +263,7 @@ namespace MDACS.Server
 
                             got += chunk.Length;
 
-                            os.Write(chunk, 0, chunk.Length);
+                            await os.WriteAsync(chunk, 0, chunk.Length);
                         } while (got < body_type.size);
 
                         os.Dispose();

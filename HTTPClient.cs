@@ -16,17 +16,38 @@ namespace MDACS.Server
         public AsyncManualResetEvent done;
         public bool close_connection;
 
+        public Stream stream_being_used;
+        public bool sent_single_chunk;
+        public bool sent_header;
+
         public ProxyHTTPEncoder(HTTPEncoder encoder, bool close_connection)
         {
             this.encoder = encoder;
             this.ready = new AsyncManualResetEvent();
             this.done = new AsyncManualResetEvent();
             this.close_connection = close_connection;
+            this.sent_header = false;
+            this.sent_single_chunk = false;
         }
 
         public async Task Death()
         {
+            if (!sent_header)
+            {
+                await WriteQuickHeader(500, "ERROR");
+            }
 
+            if (stream_being_used != null)
+            {
+                // Forcefully close it.
+                stream_being_used.Dispose();
+            } else
+            {
+                if (!sent_single_chunk)
+                {
+                    await BodyWriteSingleChunk("");
+                }
+            }
         }
 
         public async Task WriteQuickHeader(int code, String text)
@@ -95,6 +116,8 @@ namespace MDACS.Server
             await this.ready.WaitAsync();
             await this.encoder.BodyWriteSingleChunk(chunk, offset, length);
             this.done.Set();
+
+            this.sent_single_chunk = true;
         }
 
         private async Task BodyWriteStreamInternal(Stream inpstream)
@@ -103,24 +126,24 @@ namespace MDACS.Server
             bool first_chunk = true;
 
 #if PROXY_HTTP_ENCODER_DEBUG
-            Console.WriteLine("{0}.BodyWriteStreamInternal: Now running.", this);
+            Console.WriteLine($"{this}.BodyWriteStreamInternal: Now running.");
 #endif
 
             do
             {
 #if PROXY_HTTP_ENCODER_DEBUG
-                Console.WriteLine("{0}.BodyWriteStreamInternal: Doing ReadAsync on stream.", this);
+                Console.WriteLine($"{this}.BodyWriteStreamInternal: Doing ReadAsync on stream.");
 #endif
                 var cnt = await inpstream.ReadAsync(buf, 0, buf.Length);
 
 #if PROXY_HTTP_ENCODER_DEBUG
-                Console.WriteLine("{0}.BodyWriteStreamInternal: Read cnt={1} buf={2} buf.Length={3}", this, cnt, buf, buf.Length);
+                Console.WriteLine($"{this}.BodyWriteStreamInternal: Read cnt={cnt} buf={buf} buf.Length={buf.Length}");
 #endif
 
                 if (cnt < 1)
                 {
 #if PROXY_HTTP_ENCODER_DEBUG
-                    Console.WriteLine("{0}.BodyWriteStreamInternal: End of stream.", this);
+                    Console.WriteLine($"{this}.BodyWriteStreamInternal: End of stream.");
 #endif
                     break;
                 }
@@ -128,7 +151,7 @@ namespace MDACS.Server
                 if (first_chunk)
                 {
 #if PROXY_HTTP_ENCODER_DEBUG
-                    Console.WriteLine("{0}.BodyWriteStreamInternal: First chunk.", this);
+                    Console.WriteLine($"{this}.BodyWriteStreamInternal: First chunk.");
 #endif
                     await this.encoder.BodyWriteFirstChunk(buf, 0, cnt);
                     first_chunk = false;
@@ -136,7 +159,7 @@ namespace MDACS.Server
                 else
                 {
 #if PROXY_HTTP_ENCODER_DEBUG
-                    Console.WriteLine("{0}.BodyWriteStreamInternal: Next chunk.", this);
+                    Console.WriteLine($"{this}.BodyWriteStreamInternal: Next chunk.");
 #endif
 
                     await this.encoder.BodyWriteNextChunk(buf, 0, cnt);
@@ -158,8 +181,10 @@ namespace MDACS.Server
         public async Task<Task> BodyWriteStream(Stream inpstream)
         {
 #if PROXY_HTTP_ENCODER_DEBUG
-            Console.WriteLine("{0}.BodyWriteStream: Starting task to copy from stream into the real encoder.", this);
+            Console.WriteLine($"{this}.BodyWriteStream: Starting task to copy from stream into the real encoder.");
 #endif
+            this.stream_being_used = inpstream;
+
             await this.ready.WaitAsync();
 
             // Control needs to return to the caller. Do not `await` the result of this task.
@@ -229,7 +254,7 @@ namespace MDACS.Server
         /// <param name="body"></param>
         /// <param name="encoder"></param>
         /// <returns></returns>
-        public virtual async Task HandleRequest(Dictionary<String, String> header, Stream body, ProxyHTTPEncoder encoder)
+        public virtual async Task<Task> HandleRequest(Dictionary<String, String> header, Stream body, ProxyHTTPEncoder encoder)
         {
             var outheader = new Dictionary<String, String>();
 
@@ -258,6 +283,8 @@ namespace MDACS.Server
             await encoder.BodyWriteStream(ms);
 
             Console.WriteLine("Response has been sent.");
+
+            return Task.CompletedTask;
         }
 
         public async Task Handle()
@@ -411,7 +438,7 @@ namespace MDACS.Server
                 // moving onward.
                 var handle_req_task = HandleRequest(header, body, phe);
 
-                await handle_req_task;
+                var next_task = await handle_req_task;
 
                 // Clever way to handle exceptions since otherwise things continue onward like
                 // everything is normal. This can leave the runner stuck waiting at the `phe.done`
@@ -434,6 +461,13 @@ namespace MDACS.Server
                     break;
                 }
 
+                Console.WriteLine("Handler released control.");
+
+                await next_task;
+
+                // Ensure that the proxy is finished up.
+                await phe.Death();
+
                 // We must wait until both the HandleRequest returns and
                 // that the task, if any, which is reading the body also
                 // completes.
@@ -452,7 +486,7 @@ namespace MDACS.Server
                     if (body_reading_task.Exception != null)
                     {
                         Console.WriteLine("exception in body reader; shutting down connection");
-                        Console.WriteLine(body_reading_task.Exception);
+                        Console.WriteLine(body_reading_task.Exception.ToString());
                         runner_abort = true;
                         phe.done.Set();
                     }

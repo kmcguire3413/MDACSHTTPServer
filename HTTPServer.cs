@@ -9,6 +9,14 @@ using System.Threading.Tasks;
 
 namespace MDACS.Server
 {
+    class Console
+    {
+        public static void WriteLine(string line)
+        {
+            System.Console.WriteLine($"--->{line}");
+        }
+    }
+
     public abstract class IHTTPServerHandler
     {
         public abstract HTTPClient CreateClient(HTTPDecoder decoder, HTTPEncoder encoder); 

@@ -36,7 +36,7 @@ namespace MDACS.Server
         /// <param name="body"></param>
         /// <param name="encoder"></param>
         /// <returns></returns>
-        public virtual async Task HandleRequest2(HTTPRequest request, Stream body, ProxyHTTPEncoder encoder)
+        public virtual async Task<Task> HandleRequest2(HTTPRequest request, Stream body, ProxyHTTPEncoder encoder)
         {
             throw new Exception("Not Implemented");
         }
@@ -50,7 +50,7 @@ namespace MDACS.Server
         /// <param name="encoder"></param>
         /// <returns></returns>
         /// <remarks>This implementation needs cleaning on variable names for query string processing.</remarks>
-        public override async Task HandleRequest(Dictionary<String, String> header, Stream body, ProxyHTTPEncoder encoder)
+        public override async Task<Task> HandleRequest(Dictionary<String, String> header, Stream body, ProxyHTTPEncoder encoder)
         {
             var outheader = new Dictionary<String, String>();
 
@@ -61,7 +61,7 @@ namespace MDACS.Server
                 outheader.Add("$response_text", "ERROR");
                 await encoder.WriteHeader(outheader);
                 await encoder.BodyWriteSingleChunk("The request did not specify a URL.");
-                return;
+                return Task.CompletedTask;
             }
 
             var url = header["$url"];
@@ -114,7 +114,7 @@ namespace MDACS.Server
             request.url_absolute = url_absolute;
             request.query_string = query_as_string;
 
-            await HandleRequest2(request, body, encoder);
+            return await HandleRequest2(request, body, encoder);
         }
     }
 }

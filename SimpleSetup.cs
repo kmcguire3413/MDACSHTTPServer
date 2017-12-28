@@ -30,7 +30,7 @@ namespace MDACS.Server
         /// <param name="body"></param>
         /// <param name="encoder"></param>
         /// <returns>Asynchronous task object.</returns>
-        public override async Task HandleRequest2(HTTPRequest request, Stream body, ProxyHTTPEncoder encoder)
+        public override async Task<Task> HandleRequest2(HTTPRequest request, Stream body, ProxyHTTPEncoder encoder)
         {
             try
             {
@@ -41,13 +41,15 @@ namespace MDACS.Server
                     throw new NotImplementedException();
                 }
 
-                await this.handlers[request.url_absolute](this.user_argument, request, body, encoder);
+                return await this.handlers[request.url_absolute](this.user_argument, request, body, encoder);
             }
             catch (Exception ex)
             {
                 Console.WriteLine("==== EXCEPTION ====");
                 Console.WriteLine(ex.Message);
                 Console.WriteLine(ex.StackTrace);
+
+                throw;
             }
         }
     }
@@ -57,7 +59,7 @@ namespace MDACS.Server
     /// </summary>
     public class SimpleServer<T>: IHTTPServerHandler
     {
-        public delegate Task SimpleHTTPHandler(T user_argument, HTTPRequest request, Stream body, ProxyHTTPEncoder encoder);
+        public delegate Task<Task> SimpleHTTPHandler(T user_argument, HTTPRequest request, Stream body, ProxyHTTPEncoder encoder);
 
         private Dictionary<string, SimpleServer<T>.SimpleHTTPHandler> handlers;
         private T user_argument;

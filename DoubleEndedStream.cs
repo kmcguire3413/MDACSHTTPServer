@@ -70,9 +70,9 @@ namespace MDACS.Server
                 return;
             }
 
-#if DOUBLE_ENDED_STREAM_DEBUG
-            Console.WriteLine("{0}.Close: Closing stream.", this);
-#endif
+//#if DOUBLE_ENDED_STREAM_DEBUG
+            Console.WriteLine($"{this}.Close: Closing stream.");
+//#endif
 
             Chunk chunk = new Chunk();
                 
@@ -114,6 +114,11 @@ namespace MDACS.Server
 
         public override int Read(byte[] buffer, int offset, int count)
         {
+            throw new NotImplementedException($"The synchronous version of Read for the stream {this} is not implemented.");
+        }
+
+        public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default(CancellationToken))
+        {
 
 #if DOUBLE_ENDED_STREAM_DEBUG
             Console.WriteLine("{0}.Read({1}, {2}, {3})", this, buffer, offset, count);
@@ -123,8 +128,8 @@ namespace MDACS.Server
             {
                 return 0;
             }
-            
-            wh.Wait();
+
+            await wh.WaitAsync();
 
 #if DOUBLE_ENDED_STREAM_DEBUG
             Console.WriteLine("wh.Wait() completed; now locking chunks");
@@ -195,6 +200,11 @@ namespace MDACS.Server
         }
 
         public override void Write(byte[] buffer, int offset, int count)
+        {
+            throw new NotImplementedException($"The synchronous version of Write for the stream {this} is not implemented.");
+        }
+        
+        public override async Task WriteAsync(Byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
             Chunk chunk = new Chunk();
 
