@@ -20,19 +20,19 @@ namespace MDACS.Server
         /// <summary>
         /// The base HTTPEncoder. This should not be accessed directly under normal circumstances.
         /// </summary>
-        public HTTPEncoder encoder;
+        internal HTTPEncoder encoder;
         /// <summary>
         /// Set when the proxy is ready to be used.
         /// </summary>
-        public AsyncManualResetEvent ready;
+        internal AsyncManualResetEvent ready;
         /// <summary>
         /// Set when the proxy has completed all work.
         /// </summary>
-        public AsyncManualResetEvent done;
+        internal AsyncManualResetEvent done;
         /// <summary>
         /// Set when the connection should be closed.
         /// </summary>
-        public bool close_connection;
+        internal bool close_connection;
 
         /// <summary>
         /// Helper for the Death method to properly close down the connection.

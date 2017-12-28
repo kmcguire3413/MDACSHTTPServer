@@ -60,15 +60,15 @@ namespace MDACS.Server
     /// <summary>
     /// Provides an easy to use and backward compatible way to create an HTTP or HTTPS server.
     /// </summary>
-    public class SimpleServer<T>: IHTTPServerHandler
+    public class SimpleServer<UserArgumentType>: IHTTPServerHandler
     {
-        public delegate Task<Task> SimpleHTTPHandler(T user_argument, HTTPRequest request, Stream body, ProxyHTTPEncoder encoder);
+        public delegate Task<Task> SimpleHTTPHandler(UserArgumentType user_argument, HTTPRequest request, Stream body, ProxyHTTPEncoder encoder);
 
-        private Dictionary<string, SimpleServer<T>.SimpleHTTPHandler> handlers;
-        private T user_argument;
+        private Dictionary<string, SimpleServer<UserArgumentType>.SimpleHTTPHandler> handlers;
+        private UserArgumentType user_argument;
 
         private SimpleServer(
-            T user_argument,
+            UserArgumentType user_argument,
             Dictionary<string, SimpleHTTPHandler> handlers
         )
         {
@@ -78,7 +78,7 @@ namespace MDACS.Server
 
         public override HTTPClient CreateClient(HTTPDecoder decoder, HTTPEncoder encoder)
         {
-            return new SimpleHTTPClient<T>(
+            return new SimpleHTTPClient<UserArgumentType>(
                 user_argument: user_argument,
                 decoder: decoder,
                 encoder: encoder,
@@ -86,16 +86,16 @@ namespace MDACS.Server
             );
         }
 
-        public static Task Create<T>(
-            T user_argument, 
-            Dictionary<string, SimpleServer<T>.SimpleHTTPHandler> handlers,
+        public static Task Create(
+            UserArgumentType user_argument, 
+            Dictionary<string, SimpleServer<UserArgumentType>.SimpleHTTPHandler> handlers,
             ushort port, 
             string ssl_cert_path, 
             string ssl_cert_pass
         )
         {
-            var handler = new SimpleServer<T>(user_argument, handlers);
-            var server = new HTTPServer<SimpleServer<T>>(handler, ssl_cert_path, ssl_cert_pass);
+            var handler = new SimpleServer<UserArgumentType>(user_argument, handlers);
+            var server = new HTTPServer<SimpleServer<UserArgumentType>>(handler, ssl_cert_path, ssl_cert_pass);
             return server.Start(port);
         }
     }
