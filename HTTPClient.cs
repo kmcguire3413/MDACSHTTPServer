@@ -9,18 +9,53 @@ using System.Threading.Tasks;
 
 namespace MDACS.Server
 {
+    /// <summary>
+    /// Provides a higher-level of functionality than the HTTPEncoder class. It primarily provides
+    /// some error control to ensure that the client is presented with the proper response when a
+    /// handler crashes.
+    /// </summary>
+    /// <seealso cref="HTTPEncoder"/>
     public class ProxyHTTPEncoder
     {
+        /// <summary>
+        /// The base HTTPEncoder. This should not be accessed directly under normal circumstances.
+        /// </summary>
         public HTTPEncoder encoder;
+        /// <summary>
+        /// Set when the proxy is ready to be used.
+        /// </summary>
         public AsyncManualResetEvent ready;
+        /// <summary>
+        /// Set when the proxy has completed all work.
+        /// </summary>
         public AsyncManualResetEvent done;
+        /// <summary>
+        /// Set when the connection should be closed.
+        /// </summary>
         public bool close_connection;
 
+        /// <summary>
+        /// Helper for the Death method to properly close down the connection.
+        /// </summary>
         private Stream stream_being_used;
+        /// <summary>
+        /// Helper for the Death method.
+        /// </summary>
         private bool sent_single_chunk;
+        /// <summary>
+        /// Helper for the Death method.
+        /// </summary>
         private bool sent_header;
+        /// <summary>
+        /// Helper for the Death method. This must finish before other responses are sent.
+        /// </summary>
         private Task runner;
 
+        /// <summary>
+        /// Create an instance of the ProxyHTTPEncoder using a base encoder and propery close connection functionality.
+        /// </summary>
+        /// <param name="encoder"></param>
+        /// <param name="close_connection"></param>
         public ProxyHTTPEncoder(HTTPEncoder encoder, bool close_connection)
         {
             this.encoder = encoder;
@@ -31,6 +66,10 @@ namespace MDACS.Server
             this.sent_single_chunk = false;
         }
 
+        /// <summary>
+        /// A cleanup function to help cleanly finish the response.
+        /// </summary>
+        /// <returns></returns>
         public async Task Death()
         {
             if (!sent_header)
@@ -58,6 +97,12 @@ namespace MDACS.Server
             done.Set();
         }
 
+        /// <summary>
+        /// Writes the header using the bare minimum fields.
+        /// </summary>
+        /// <param name="code"></param>
+        /// <param name="text"></param>
+        /// <returns></returns>
         public async Task WriteQuickHeader(int code, String text)
         {
             var header = new Dictionary<String, String>();
@@ -69,12 +114,12 @@ namespace MDACS.Server
         }
 
         /// <summary>
-        /// Write the HTTP headers to the remote endpoint. The actual writing of the headers may or may
-        /// not be delayed - depending on the implementation. The headers are likely to be sent once some
-        /// response data has been written.
+        /// Write the header using all fields specified by the caller. Use the key "$response_code" for the
+        /// response code and the key "$response_text" for the response code text. The data sent is in the
+        /// format $"HTTP/1.1 {response_code} {response_text}". The response text is not the response body!
         /// </summary>
         /// <param name="header">The header.</param>
-        /// <returns></returns>
+        /// <returns>Task which must be awaited to ensure the header was set.</returns>
         public async Task WriteHeader(Dictionary<String, String> header)
         {
             if (close_connection)
@@ -108,6 +153,11 @@ namespace MDACS.Server
             sent_header = true;
         }
 
+        /// <summary>
+        /// Write a single UTF-8 string as the response. This terminates the response.
+        /// </summary>
+        /// <param name="chunk"></param>
+        /// <returns></returns>
         public async Task BodyWriteSingleChunk(String chunk)
         {
             byte[] chunk_bytes = Encoding.UTF8.GetBytes(chunk);
@@ -115,7 +165,7 @@ namespace MDACS.Server
         }
 
         /// <summary>
-        /// This will send a single chunk and use the content-length field of the HTTP response.
+        /// Write a single binary response. This terminates the response.
         /// </summary>
         /// <param name="chunk">The data to send.</param>
         /// <param name="offset">The offset within the data array.</param>
@@ -133,6 +183,11 @@ namespace MDACS.Server
             this.done.Set();
         }
 
+        /// <summary>
+        /// Not intended to be called outside this class. It is the body of a asynchronous method.
+        /// </summary>
+        /// <param name="inpstream"></param>
+        /// <returns></returns>
         private async Task BodyWriteStreamInternal(Stream inpstream)
         {
             byte[] buf = new byte[1024 * 4];
@@ -185,12 +240,13 @@ namespace MDACS.Server
         }
 
         /// <summary>
-        /// This will spawn an asynchronous task which will continually read from the stream until
-        /// it reaches the end. Each chunk of data read from the stream will be send as a chunk of
-        /// a transfer-encoding chunked response.
+        /// Use a stream to write a response body. This method will return a Task which should be awaited on
+        /// before returning control from the handler. Failure to await both this function and the returned
+        /// task could result in the HTTPProxyEncoder sending an error message in some cases instead of your
+        /// intended response.
         /// </summary>
         /// <param name="inpstream">The stream to read chunks from.</param>
-        /// <returns></returns>
+        /// <returns>A Task with the return value of a Task. Both shall be awaited.</returns>
         public async Task<Task> BodyWriteStream(Stream inpstream)
         {
 #if PROXY_HTTP_ENCODER_DEBUG
@@ -209,6 +265,9 @@ namespace MDACS.Server
         }
     }
 
+    /// <summary>
+    /// The lowest level implementation of a client.
+    /// </summary>
     public class HTTPClient
     {
         private HTTPDecoder decoder;
