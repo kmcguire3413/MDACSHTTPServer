@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace MDACS.Server
 {
-    // 
-    public class StreamReaderHelper
+    /// <summary>
+    /// A helper class intended to make reading from a stream easier when dealing with the HTTP protocol.
+    /// </summary>
+    internal class StreamReaderHelper
     {
         public Stream stream;
         public byte[] buf;
@@ -146,7 +148,7 @@ namespace MDACS.Server
         }
     }
 
-    public class HTTPDecoder
+    internal class HTTPDecoder : IHTTPDecoder
     {
         private Stream s;
         private StreamReaderHelper s_helper;

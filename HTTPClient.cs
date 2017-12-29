@@ -9,30 +9,38 @@ using System.Threading.Tasks;
 
 namespace MDACS.Server
 {
+    public interface IProxyHTTPEncoder
+    {
+        Task WriteQuickHeader(int code, String text);
+        Task WriteHeader(Dictionary<String, String> header);
+        Task BodyWriteSingleChunk(String chunk);
+        Task<Task> BodyWriteStream(Stream inpstream);
+    }
+
     /// <summary>
     /// Provides a higher-level of functionality than the HTTPEncoder class. It primarily provides
     /// some error control to ensure that the client is presented with the proper response when a
     /// handler crashes.
     /// </summary>
     /// <seealso cref="HTTPEncoder"/>
-    public class ProxyHTTPEncoder
+    internal class ProxyHTTPEncoder: IProxyHTTPEncoder
     {
         /// <summary>
         /// The base HTTPEncoder. This should not be accessed directly under normal circumstances.
         /// </summary>
-        public HTTPEncoder encoder;
+        internal IHTTPEncoder encoder;
         /// <summary>
         /// Set when the proxy is ready to be used.
         /// </summary>
-        public AsyncManualResetEvent ready;
+        internal AsyncManualResetEvent ready;
         /// <summary>
         /// Set when the proxy has completed all work.
         /// </summary>
-        public AsyncManualResetEvent done;
+        internal AsyncManualResetEvent done;
         /// <summary>
         /// Set when the connection should be closed.
         /// </summary>
-        public bool close_connection;
+        internal bool close_connection;
 
         /// <summary>
         /// Helper for the Death method to properly close down the connection.
@@ -56,7 +64,7 @@ namespace MDACS.Server
         /// </summary>
         /// <param name="encoder"></param>
         /// <param name="close_connection"></param>
-        public ProxyHTTPEncoder(HTTPEncoder encoder, bool close_connection)
+        public ProxyHTTPEncoder(IHTTPEncoder encoder, bool close_connection)
         {
             this.encoder = encoder;
             this.ready = new AsyncManualResetEvent();
@@ -268,12 +276,12 @@ namespace MDACS.Server
     /// <summary>
     /// The lowest level implementation of a client.
     /// </summary>
-    public class HTTPClient
+    internal class HTTPClient : IHTTPClient
     {
-        private HTTPDecoder decoder;
-        private HTTPEncoder encoder;
+        private IHTTPDecoder decoder;
+        private IHTTPEncoder encoder;
 
-        public HTTPClient(HTTPDecoder decoder, HTTPEncoder encoder)
+        public HTTPClient(IHTTPDecoder decoder, IHTTPEncoder encoder)
         {
             this.decoder = decoder;
             this.encoder = encoder;
@@ -326,7 +334,7 @@ namespace MDACS.Server
         /// <param name="body"></param>
         /// <param name="encoder"></param>
         /// <returns></returns>
-        public virtual async Task<Task> HandleRequest(Dictionary<String, String> header, Stream body, ProxyHTTPEncoder encoder)
+        public virtual async Task<Task> HandleRequest(Dictionary<String, String> header, Stream body, IProxyHTTPEncoder encoder)
         {
             var outheader = new Dictionary<String, String>();
 
@@ -508,7 +516,7 @@ namespace MDACS.Server
                 // To keep things more deterministic and less performance oriented
                 // you can see that we await the request handler to complete before
                 // moving onward.
-                var handle_req_task = HandleRequest(header, body, phe);
+                var handle_req_task = HandleRequest(header, body, (IProxyHTTPEncoder)phe);
 
                 var next_task = await handle_req_task;
 
