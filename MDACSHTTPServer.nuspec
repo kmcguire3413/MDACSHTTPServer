@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>MDACS.Server</id>
-    <version>0.2.1</version>
+    <version>1.2.2</version>
     <title>MDCAS Light-weight HTTP/HTTPS Server</title>
     <authors>leonard.kevin.mcguire.jr@gmail.com</authors>
     <owners>leonard.kevin.mcguire.jr@gmail.com</owners>

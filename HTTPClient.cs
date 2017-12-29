@@ -14,7 +14,6 @@ namespace MDACS.Server
         Task WriteQuickHeader(int code, String text);
         Task WriteHeader(Dictionary<String, String> header);
         Task BodyWriteSingleChunk(String chunk);
-        Task BodyWriteStreamInternal(Stream inpstream);
         Task<Task> BodyWriteStream(Stream inpstream);
     }
 
@@ -24,7 +23,7 @@ namespace MDACS.Server
     /// handler crashes.
     /// </summary>
     /// <seealso cref="HTTPEncoder"/>
-    internal class ProxyHTTPEncoder
+    internal class ProxyHTTPEncoder: IProxyHTTPEncoder
     {
         /// <summary>
         /// The base HTTPEncoder. This should not be accessed directly under normal circumstances.
@@ -517,7 +516,7 @@ namespace MDACS.Server
                 // To keep things more deterministic and less performance oriented
                 // you can see that we await the request handler to complete before
                 // moving onward.
-                var handle_req_task = HandleRequest(header, body, phe as IProxyHTTPEncoder);
+                var handle_req_task = HandleRequest(header, body, (IProxyHTTPEncoder)phe);
 
                 var next_task = await handle_req_task;
 
