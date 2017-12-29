@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace MDACS.Server
 {
-    class Console
+    internal class Console
     {
         public static void WriteLine(string line)
         {
@@ -21,10 +21,10 @@ namespace MDACS.Server
 
     public abstract class IHTTPServerHandler
     {
-        public abstract HTTPClient CreateClient(HTTPDecoder decoder, HTTPEncoder encoder); 
+        public abstract IHTTPClient CreateClient(IHTTPDecoder decoder, IHTTPEncoder encoder); 
     }
 
-    public class HTTPServer<C> where C: IHTTPServerHandler
+    internal class HTTPServer<C> where C: IHTTPServerHandler
     {
         private String pfx_cert_path;
         private String cert_private_key_password;

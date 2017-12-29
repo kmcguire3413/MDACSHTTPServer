@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace MDACS.Server
 {
-    public class SemaphoreSaturateSlim
+    internal class SemaphoreSaturateSlim
     {
         private int start;
         private int max;

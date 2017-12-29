@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MDACS.Server
 {
-    public enum HTTPEncoderState
+    internal enum HTTPEncoderState
     {
         SendingHeaders,
         SendingChunkedBody,
@@ -16,7 +16,7 @@ namespace MDACS.Server
         SendingBody,
     }
 
-    public class HTTPEncoder
+    internal class HTTPEncoder : IHTTPEncoder
     {
         private Stream s;
         private HTTPEncoderState state;

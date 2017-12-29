@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace MDACS.Server
 {
     // https://blogs.msdn.microsoft.com/pfxteam/2012/02/11/building-async-coordination-primitives-part-1-asyncmanualresetevent/
-    public class AsyncManualResetEvent
+    internal class AsyncManualResetEvent
     {
         private volatile TaskCompletionSource<bool> m_tcs = new TaskCompletionSource<bool>();
 

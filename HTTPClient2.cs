@@ -6,37 +6,43 @@ using System.Threading.Tasks;
 
 namespace MDACS.Server
 {
-    public class HTTPClient2 : HTTPClient
+    public enum HTTPRequestMethod
     {
-        public enum HTTPRequestMethod
-        {
-            GET,
-            POST,
-            UNKNOWN,
-        }
+        GET,
+        POST,
+        UNKNOWN,
+    }
 
-        public struct HTTPRequest
-        {
-            public String url;
-            public String url_absolute;
-            public Dictionary<String, String> query;
-            public String query_string;
-            public HTTPRequestMethod method;
-            public Dictionary<String, String> internal_headers;
-        }
-
-        public HTTPClient2(HTTPDecoder decoder, HTTPEncoder encoder) : base(decoder, encoder)
+    /// <summary>
+    /// The request object handled to the next level handler by HTTPClient2.
+    /// </summary>
+    public struct HTTPRequest
+    {
+        public String url;
+        public String url_absolute;
+        public Dictionary<String, String> query;
+        public String query_string;
+        public HTTPRequestMethod method;
+        public Dictionary<String, String> internal_headers;
+    }
+    /// <summary>
+    /// A slightly higher level implementation of the client. Handles parsing of the resource string.
+    /// </summary>
+    internal class HTTPClient2 : HTTPClient
+    {
+        public HTTPClient2(IHTTPDecoder decoder, IHTTPEncoder encoder) : base(decoder, encoder)
         {
         }
 
         /// <summary>
-        /// Must be implemented.
+        /// Must be implemented by sub-class.
         /// </summary>
+        /// <remarks>May come back and refactor this to use interfaces instead of subclases.</remarks>
         /// <param name="request"></param>
         /// <param name="body"></param>
         /// <param name="encoder"></param>
         /// <returns></returns>
-        public virtual async Task<Task> HandleRequest2(HTTPRequest request, Stream body, ProxyHTTPEncoder encoder)
+        public virtual async Task<Task> HandleRequest2(HTTPRequest request, Stream body, IProxyHTTPEncoder encoder)
         {
             throw new Exception("Not Implemented");
         }
@@ -50,7 +56,7 @@ namespace MDACS.Server
         /// <param name="encoder"></param>
         /// <returns></returns>
         /// <remarks>This implementation needs cleaning on variable names for query string processing.</remarks>
-        public override async Task<Task> HandleRequest(Dictionary<String, String> header, Stream body, ProxyHTTPEncoder encoder)
+        public override async Task<Task> HandleRequest(Dictionary<String, String> header, Stream body, IProxyHTTPEncoder encoder)
         {
             var outheader = new Dictionary<String, String>();
 

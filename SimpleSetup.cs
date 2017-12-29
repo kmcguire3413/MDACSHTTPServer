@@ -7,15 +7,15 @@ using static MDACS.Server.HTTPClient2;
 
 namespace MDACS.Server
 {
-    public class SimpleHTTPClient<T> : HTTPClient2
+    internal class SimpleHTTPClient<T> : HTTPClient2
     {
         private T user_argument;
         private Dictionary<String, SimpleServer<T>.SimpleHTTPHandler> handlers;
 
         public SimpleHTTPClient(
             T user_argument,
-            HTTPDecoder decoder,
-            HTTPEncoder encoder,
+            IHTTPDecoder decoder,
+            IHTTPEncoder encoder,
             Dictionary<String, SimpleServer<T>.SimpleHTTPHandler> handlers
         ) : base(decoder, encoder)
         {
@@ -30,7 +30,7 @@ namespace MDACS.Server
         /// <param name="body"></param>
         /// <param name="encoder"></param>
         /// <returns>Asynchronous task object.</returns>
-        public override async Task<Task> HandleRequest2(HTTPRequest request, Stream body, ProxyHTTPEncoder encoder)
+        public override async Task<Task> HandleRequest2(HTTPRequest request, Stream body, IProxyHTTPEncoder encoder)
         {
             try
             {
@@ -62,7 +62,7 @@ namespace MDACS.Server
     /// </summary>
     public class SimpleServer<UserArgumentType>: IHTTPServerHandler
     {
-        public delegate Task<Task> SimpleHTTPHandler(UserArgumentType user_argument, HTTPRequest request, Stream body, ProxyHTTPEncoder encoder);
+        public delegate Task<Task> SimpleHTTPHandler(UserArgumentType user_argument, HTTPRequest request, Stream body, IProxyHTTPEncoder encoder);
 
         private Dictionary<string, SimpleServer<UserArgumentType>.SimpleHTTPHandler> handlers;
         private UserArgumentType user_argument;
@@ -76,7 +76,7 @@ namespace MDACS.Server
             this.handlers = handlers;
         }
 
-        public override HTTPClient CreateClient(HTTPDecoder decoder, HTTPEncoder encoder)
+        public override IHTTPClient CreateClient(IHTTPDecoder decoder, IHTTPEncoder encoder)
         {
             return new SimpleHTTPClient<UserArgumentType>(
                 user_argument: user_argument,
