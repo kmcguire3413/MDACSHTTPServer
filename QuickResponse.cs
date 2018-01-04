@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -44,13 +45,39 @@ namespace MDACS.Server
             return await proxy.BodyWriteStream(s);
         }
 
-        public async Task SendString(string s)
+        public async Task<Task> SendJsonFromObject(object obj)
+        {
+            header.Add("$response_code", response_code.ToString());
+            header.Add("$response_text", response_text);
+
+            await proxy.WriteHeader(header);
+            await proxy.BodyWriteSingleChunk(
+                JsonConvert.SerializeObject(obj)
+            );
+
+            return Task.CompletedTask;
+        }
+
+        public async Task<Task> SendNothing()
+        {
+            header.Add("$response_code", response_code.ToString());
+            header.Add("$response_text", response_text);
+
+            await proxy.WriteHeader(header);
+            await proxy.BodyWriteSingleChunk("");
+
+            return Task.CompletedTask;
+        }
+
+        public async Task<Task> SendString(string s)
         {
             header.Add("$response_code", response_code.ToString());
             header.Add("$response_text", response_text);
 
             await proxy.WriteHeader(header);
             await proxy.BodyWriteSingleChunk(s);
+
+            return Task.CompletedTask;
         }
 
         /// <summary>

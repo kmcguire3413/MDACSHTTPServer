@@ -1,3 +1,11 @@
+* commit 15286a40cdbdf1e86118ba920c6d06dc848d2c84
+| Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
+| Date:   Thu Jan 4 00:25:11 2018 -0600
+| 
+|     + added QuickResponse and automatic version increment on build.
+|     + added utility functions under MDACS.Server.Util to help with reading requests.
+|     + added list of HTTP response header fields
+| 
 * commit c722c15d907cb20be1c6a6c3e2ce245487516698
 | Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
 | Date:   Thu Dec 28 18:52:07 2017 -0600
