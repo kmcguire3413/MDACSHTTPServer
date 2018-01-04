@@ -1,1 +1,1 @@
-{"version": "1.3.201.4009", "git_branch": "nightly", "git_commit": "", "git_message_line": "   15286a4 [origin/nightly] + added QuickResponse and automatic version increment on build. + added utility functions under MDACS.Server.Util to help with reading requests. + added list of HTTP response header fields"}
+{"version": "1.3.201.4013", "git_branch": "nightly", "git_commit": "", "git_message_line": "   7763964 [origin/nightly] + added more ergonomics with method sugar using QuickResponse"}

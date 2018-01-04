@@ -1,7 +1,9 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -78,6 +80,73 @@ namespace MDACS.Server
             await proxy.BodyWriteSingleChunk(s);
 
             return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Inform the client to not cache the response.
+        /// 
+        /// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
+        /// </summary>
+        public QuickResponse CacheControlDoNotCache() => CacheControl("no-cache, no-store, must-revalidate");
+
+        public QuickResponse ContentType_JSON() => ContentType("application/json");
+        public QuickResponse ContentType_HTML() => ContentType("text/html");
+
+        public Dictionary<string, string> file_extention_to_mime_map;
+
+        public QuickResponse ContentType_GuessFromFileName(string filename)
+        {
+            // Run-time initiailize the mime database.
+            //
+            // https://www.npmjs.com/package/mime-db
+            if (file_extention_to_mime_map == null)
+            {
+                file_extention_to_mime_map = new Dictionary<string, string>();
+
+                var strm = Assembly.GetExecutingAssembly().GetManifestResourceStream("MDACSHTTPServer.mimedb.json");
+                var json = JsonConvert.DeserializeObject<JObject>(new StreamReader(strm).ReadToEnd());
+
+                foreach (var entry in json)
+                {
+                    var sentry = json[entry.Key];
+
+                    if (sentry.Type == JTokenType.Object)
+                    {
+                        var _sentry = (JObject)sentry;
+
+                        JToken exts;
+
+                        if (_sentry.TryGetValue("extensions", out exts))
+                        {
+                            if (exts.Type == JTokenType.Array)
+                            {
+                                foreach (var ext in exts.AsJEnumerable())
+                                {
+                                    if (ext.Type == JTokenType.String)
+                                    {
+                                        var ext_str = ext.ToObject<string>().ToLower();
+                                        if (!file_extention_to_mime_map.ContainsKey(ext_str))
+                                        {
+                                            file_extention_to_mime_map.Add(ext_str, entry.Key);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            var dot_pos = filename.IndexOf(".");
+            var the_ext = filename.Substring(dot_pos + 1).ToLower();
+            string mime_type;
+
+            if (!file_extention_to_mime_map.TryGetValue(the_ext, out mime_type))
+            {
+                return ContentType("application/octet-stream");
+            }
+
+            return ContentType(mime_type);
         }
 
         /// <summary>

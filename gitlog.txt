@@ -1,3 +1,9 @@
+* commit 7763964428825ce391a73778c49200c12db97448
+| Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
+| Date:   Thu Jan 4 00:36:11 2018 -0600
+| 
+|     + added more ergonomics with method sugar using QuickResponse
+| 
 * commit 15286a40cdbdf1e86118ba920c6d06dc848d2c84
 | Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
 | Date:   Thu Jan 4 00:25:11 2018 -0600

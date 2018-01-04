@@ -21,6 +21,14 @@ dependable, simple to maintain, and fast.</Description>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="mimedb.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="mimedb.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
   </ItemGroup>
 
