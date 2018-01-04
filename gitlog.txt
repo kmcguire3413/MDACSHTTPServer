@@ -1,0 +1,94 @@
+* commit c722c15d907cb20be1c6a6c3e2ce245487516698
+| Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
+| Date:   Thu Dec 28 18:52:07 2017 -0600
+| 
+|     + Fixed missing interface marker on ProxyHTTPEncoder.
+|     + Ran through manual integration testing.
+|     + Updated release sheet and added new release sheet.
+| 
+* commit 16b8e489d8707004a5ab63bbe027698ad65b1e6a
+| Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
+| Date:   Thu Dec 28 18:13:45 2017 -0600
+| 
+|     Major visibility rework to hide implementation that is not going to have a contract to be backwards compatible.
+|     
+|     Now, only members that should be used by library users are exposed. This should reduce the incidence of someone using something that was never intended to stay the same or reasoned with about staying the same.
+| 
+* commit 7cace1598e03051ffbea26c3980eddf1f92f77b3
+| Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
+| Date:   Thu Dec 28 17:50:27 2017 -0600
+| 
+|     Changes
+|     
+|     + Changed some members of ProxyHTTPEncoder from public to internal so that they are accessible from within the assembly but not outside of it.
+|     + Improved readability of the generic type for SimpleServer.
+|   
+*   commit ea88b7a31e7af85a4774ac19524f48886ff17122
+|\  Merge: 0114b80 a4876b4
+| | Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
+| | Date:   Thu Dec 28 16:35:57 2017 -0600
+| | 
+| |     Merge branch 'nightly' of https://bitbucket.org/kmcg3413/mdacshttpserver into nightly
+| | 
+| * commit a4876b44253aa9f9cc628207c0d78ecd2df32905
+| | Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
+| | Date:   Thu Dec 28 16:32:50 2017 -0600
+| | 
+| |     Added README.md.
+| |     Added release check off for 0.2.1
+| | 
+* | commit 0114b80b4c916d832e3cb48448739b079acd441c
+| | Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
+| | Date:   Thu Dec 28 16:32:50 2017 -0600
+| | 
+| |     Added README.md.
+| |     Added release check off for 0.2.1
+| | 
+* | commit afd1049344b11856d5d4d77b69c073e640cd2561
+| | Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
+| | Date:   Thu Dec 28 16:25:46 2017 -0600
+| | 
+| |     Documenting code.
+| | 
+* | commit dd07131218bdf4601a22856218acad26e3b629a7
+|/  Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
+|   Date:   Thu Dec 28 16:16:01 2017 -0600
+|   
+|       Added README.md with example code.
+| 
+* commit 514716e17d7dd5dbf3f5dace57d4120dfd52a780
+| Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
+| Date:   Thu Dec 28 16:04:54 2017 -0600
+| 
+|     Changes
+|     
+|     + added asynchronously blocking sempahore to DoubleEndedStream which supports a saturating count against the maximum
+|     
+|     + ProxyHTTPEncoder has some fields set to private as intended but incorrectly set originally.
+|     
+|     + Bug fixes to ProxyHTTPEncoder.Death
+|     
+|     + Various small but critical fixes related to serious problems.
+|     
+|     + Debugging console output now only enabled for the debug version of the build.
+| 
+* commit 3bafd06bf7b3ac4a266a4ffb7dc4f38e49920bf3
+| Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
+| Date:   Thu Dec 28 07:37:14 2017 -0600
+| 
+|     Changes
+|     
+|     + Added default 404 handler for SimpleServer framework.
+|     + Added feature to run with just HTTP and not HTTPS but not specifying a certification file.
+| 
+* commit f46b39150add7a6a3ab117321d82a19b8bc96c04
+| Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
+| Date:   Thu Dec 28 07:09:16 2017 -0600
+| 
+|     Fixes
+| 
+* commit 44680a053d1166bda70d754e934c292d3792d715
+  Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
+  Date:   Thu Dec 28 05:25:50 2017 -0600
+  
+      MDACSHTTPServer moved into its own repo and solution.

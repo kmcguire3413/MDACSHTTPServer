@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -7,7 +8,98 @@ using static MDACS.Server.HTTPClient2;
 
 namespace MDACS.Server
 {
-    internal class SimpleHTTPClient<T> : HTTPClient2
+    public static class Util
+    {
+        /// <summary>
+        /// Reads a stream asynchronously providing both a maximum read amount and an intervaled amount to
+        /// do an asynchronous `Task.Yield` at. Finally, treats the data as UTF8 JSON encoded and returns an
+        /// object deserialized using a Newtonsoft.Json compatible decoder.
+        /// </summary>
+        /// <typeparam name="T">The JSON representing type.</typeparam>
+        /// <param name="s">The stream.</param>
+        /// <param name="max_amount"></param>
+        /// <param name="yield_amount"></param>
+        /// <returns>Returns null if read was aborted or the object if successful.</returns>
+        public static async Task<T> ReadJsonObjectFromStreamAsync<T>(Stream s, long max_amount, long yield_amount = 1024 * 1024)
+        {
+            var (aborted, data_bytes) = await ReadStreamUntilEndAsync(s, max_amount, yield_amount);
+
+            if (aborted)
+            {
+                return default(T);
+            }
+
+            var data_utf8 = Encoding.UTF8.GetString(data_bytes);
+
+            return JsonConvert.DeserializeObject<T>(data_utf8);
+        }
+
+        /// <summary>
+        /// Reads a stream asynchronously and collects all data but enforces an upper limit on the amount
+        /// of data to read from the stream before the method exits.
+        /// </summary>
+        /// <param name="s">The stream.</param>
+        /// <param name="max_amount">The method forcefully returns once it has read this many bytes.</param>
+        /// <param name="yield_amount">The number of bytes to read before a forced `Task.Yield` is used.</param>
+        /// <returns>A tuple with a bool indicating a forced exit and a task object containing a byte array.</returns>
+        public static async Task<(bool, byte[])> ReadStreamUntilEndAsync(Stream s, long max_amount, long yield_amount = 1024 * 1024)
+        {
+            var mb = new MemoryStream();
+            var buf = new byte[1024];
+            int cnt = 0;
+            long amount = 0;
+            long amount_total = 0;
+
+            while ((cnt = await s.ReadAsync(buf, 0, buf.Length)) > 0)
+            {
+                amount += cnt;
+                amount_total += cnt;
+
+                await mb.WriteAsync(buf, 0, cnt);
+
+                if (amount_total > max_amount)
+                {
+                    return (true, mb.GetBuffer());
+                }
+
+                if (amount > yield_amount)
+                {
+                    amount = 0;
+                    await Task.Yield();
+                }
+            }
+
+            return (false, mb.GetBuffer());
+        }
+
+        /// <summary>
+        /// Reads a stream asynchronously and discards all data from the stream. Also, provides the ability to
+        /// perform an asynchronous yield each time so many bytes are read, thus, preventing starvation of other
+        /// tasks if the stream never ends.
+        /// </summary>
+        /// <param name="s">The stream.</param>
+        /// <param name="yield_amount">The number of bytes to read before a forced `Task.Yield` is used.</param>
+        /// <returns>A task object.</returns>
+        public static async Task ReadStreamUntilEndAndDiscardDataAsync(Stream s, long yield_amount = 1024 * 1024)
+        {
+            var buf = new byte[1024];
+            int cnt = 0;
+            long amount = 0;
+
+            while ((cnt = await s.ReadAsync(buf, 0, buf.Length)) > 0)
+            {
+                amount += cnt;
+
+                if (amount > yield_amount)
+                {
+                    amount = 0;
+                    await Task.Yield();
+                }
+            }
+        }
+    }
+
+    class SimpleHTTPClient<T> : HTTPClient2
     {
         private T user_argument;
         private Dictionary<String, SimpleServer<T>.SimpleHTTPHandler> handlers;

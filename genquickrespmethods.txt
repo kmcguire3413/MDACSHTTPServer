@@ -1,0 +1,73 @@
+* Specifying which web sites can participate in cross-origin resource sharing.
+Access-Control-Allow-Origin
+* Specifying which web sites can participate in cross-origin resource sharing.
+Access-Control-Allow-Credentials
+* Specifying which web sites can participate in cross-origin resource sharing.
+Access-Control-Expose-Headers
+* Specifying which web sites can participate in cross-origin resource sharing.
+Access-Control-Max-Age
+* Specifying which web sites can participate in cross-origin resource sharing.
+Access-Control-Allow-Methods
+* Specifying which web sites can participate in cross-origin resource sharing.
+Access-Control-Allow-Headers
+Accept-Patch
+Accept-Ranges
+Age
+Allow
+Alt-Svc
+Cache-Control
+Connection
+Content-Disposition
+Content-Encoding
+Content-Language
+Content-Length
+Content-Location
+Content-MD5
+Content-Range
+Content-Type
+Date
+ETag
+Expires
+Last-Modified
+Link
+Location
+P3P
+Pragma
+Proxy-Authenticate
+Public-Key-Pins
+Retry-After
+Server
+Set-Cookie
+Strict-Transport-Security
+Trailer
+Transfer-Encoding
+Tk
+Upgrade
+Vary
+Via
+Warning
+WWW-Authenticate
+X-Frame-Options
+Content-Security-Policy
+X-Content-Security-Policy
+X-WebKit-CSP
+* Used in redirection, or when a new resource has been created. This refresh redirects after 5 seconds. Header extension introduced by Netscape and supported by most web browsers.
+Refresh
+* CGI header field specifying the status of the HTTP response. Normal HTTP responses use a separate "Status-Line" instead, defined by RFC 7230.
+Status
+* Tells a server which (presumably in the middle of a HTTP -> HTTPS migration) hosts mixed content that the client would prefer redirection to HTTPS and can handle Content-Security-Policy: upgrade-insecure-requests. _Must not be used with HTTP/2_.
+Upgrade-Insecure-Requests
+* Provide the duration of the audio or video in seconds; only supported by Gecko browsers
+X-Content-Duration
+* The only defined value, "nosniff", prevents Internet Explorer from MIME-sniffing a response away from the declared content-type. This also applies to Google Chrome, when downloading extensions.
+X-Content-Type-Options
+* Specifies the technology (e.g. ASP.NET, PHP, JBoss) supporting the web application (version details are often in X-Runtime, X-Version, or X-AspNet-Version)
+X-Powered-By
+* Correlates HTTP requests between a client and server.
+X-Request-ID
+* Correlates HTTP requests between a client and server.
+X-Correlation-ID
+* Recommends the preferred rendering engine (often a backward-compatibility mode) to use to display the content. Also used to activate Chrome Frame in Internet Explorer.
+X-UA-Compatible
+* Cross-site scripting (XSS) filter.
+X-XSS-Protection

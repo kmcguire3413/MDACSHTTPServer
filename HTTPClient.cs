@@ -15,6 +15,8 @@ namespace MDACS.Server
         Task WriteHeader(Dictionary<String, String> header);
         Task BodyWriteSingleChunk(String chunk);
         Task<Task> BodyWriteStream(Stream inpstream);
+        Task WriteQuickHeaderAndStringBody(int code, string code_text, string body_text);
+        QuickResponse Response(int code, string text);
     }
 
     /// <summary>
@@ -74,6 +76,11 @@ namespace MDACS.Server
             this.sent_single_chunk = false;
         }
 
+        public QuickResponse Response(int code, string text)
+        {
+            return new QuickResponse(code, text, this);
+        }
+
         /// <summary>
         /// A cleanup function to help cleanly finish the response.
         /// </summary>
@@ -119,6 +126,16 @@ namespace MDACS.Server
             header.Add("$response_text", text);
 
             await WriteHeader(header);
+        }
+
+        public async Task WriteQuickHeaderAndStringBody(int code, string code_text, string body_text)
+        {
+            var header = new Dictionary<String, String>();
+            header.Add("$response_code", code.ToString());
+            header.Add("$response_text", code_text);
+            await WriteHeader(header);
+            byte[] chunk_bytes = Encoding.UTF8.GetBytes(body_text);
+            await BodyWriteSingleChunk(chunk_bytes, 0, chunk_bytes.Length);
         }
 
         /// <summary>

@@ -1,20 +1,23 @@
-<?xml version="1.0"?>
-<package >
+<package>
   <metadata>
     <id>MDACS.Server</id>
-    <version>1.2.2</version>
-    <title>MDCAS Light-weight HTTP/HTTPS Server</title>
+    <version>0.0.201.4005</version>
+    <title>MDCAS Bare Metal HTTP/HTTPS Server</title>
     <authors>leonard.kevin.mcguire.jr@gmail.com</authors>
     <owners>leonard.kevin.mcguire.jr@gmail.com</owners>
     <licenseUrl>https://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>
-    Provides an HTTPS (HTTP planned) asynchronous ready light-weight server. 
-    
-    _This is an initial release. The server may have minor bugs and missing features._
+    * Almost bare metal HTTP/HTTPS server. 
+    * Intends to keep a low memory profile and CPU loads.
+    * Provide ergonomical calling but these are optional to static typed calls.
+    * Drops rigorous compliance with legacy issues. Focuses on recent standards and newer browsers.
+    * Designed with the concept of providing as low of latency as possible for responses while still being asynchronous.
+    * Is oriented entirely for asynchronous code with one or multiple parallel threads.
+    * Code base is kept simple, easy to read, and easy to modify.
     </description>
     <releaseNotes>Initial release.</releaseNotes>
     <copyright>Copyright 2017</copyright>
-    <tags>https async lightweight</tags>
+    <tags>https async lightweight bare-metal ergonomic cpu memory low asynchronous threaded</tags>
   </metadata>
 </package>

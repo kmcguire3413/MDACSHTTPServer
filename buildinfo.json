@@ -1,0 +1,1 @@
+{"version": "1.3.201.4005", "git_branch": "nightly", "git_commit": "", "git_message_line": "   c722c15 [origin/nightly] + Fixed missing interface marker on ProxyHTTPEncoder. + Ran through manual integration testing. + Updated release sheet and added new release sheet."}
