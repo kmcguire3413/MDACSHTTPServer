@@ -1,1 +1,1 @@
-{"version": "1.3.201.4013", "git_branch": "nightly", "git_commit": "", "git_message_line": "   7763964 [origin/nightly] + added more ergonomics with method sugar using QuickResponse"}
+{"version": "1.3.201.6018", "git_branch": "nightly", "git_commit": "", "git_message_line": "   c01b4e9 [origin/nightly] Used https://www.npmjs.com/package/mime-db to embed a mimedb.json file which provides the method ContentType_GuessFromFileName for the QuickResponse sugar class. This makes writing responses much easier and less error prone."}

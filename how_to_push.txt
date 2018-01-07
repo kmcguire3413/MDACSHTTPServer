@@ -1,0 +1,8 @@
+﻿
+
+There is a bug where nuget.exe's pack command will fail with an error. Therefore, running the msbuild below
+will produce the package that can be used with nuget.exe
+
+"c:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\bin\MSBuild" /t:pack
+
+c:\users\kmcgu\Downloads\nuget.exe push <PACKAGE> [APIKEY] -Source https://api.nuget.org/v3/index.json

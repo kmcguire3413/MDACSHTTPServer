@@ -137,7 +137,7 @@ namespace MDACS.Server
                 }
             }
 
-            var dot_pos = filename.IndexOf(".");
+            var dot_pos = filename.LastIndexOf(".");
             var the_ext = filename.Substring(dot_pos + 1).ToLower();
             string mime_type;
 

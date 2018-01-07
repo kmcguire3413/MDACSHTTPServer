@@ -1,3 +1,9 @@
+* commit c01b4e9e06f51a26616e335da6e0fbfe78a1f15a
+| Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
+| Date:   Thu Jan 4 01:13:05 2018 -0600
+| 
+|     Used https://www.npmjs.com/package/mime-db to embed a mimedb.json file which provides the method ContentType_GuessFromFileName for the QuickResponse sugar class. This makes writing responses much easier and less error prone.
+| 
 * commit 7763964428825ce391a73778c49200c12db97448
 | Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
 | Date:   Thu Jan 4 00:36:11 2018 -0600
