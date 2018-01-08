@@ -1,3 +1,9 @@
+* commit 8d55d7ccc34ef6bd3d1072c67c2cd5e7411420b3
+| Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
+| Date:   Sat Jan 6 22:00:35 2018 -0600
+| 
+|     Fixed bug in guessing of extension where dots preceeding the last dot would confuse the selector logic.
+| 
 * commit c01b4e9e06f51a26616e335da6e0fbfe78a1f15a
 | Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
 | Date:   Thu Jan 4 01:13:05 2018 -0600

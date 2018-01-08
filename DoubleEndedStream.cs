@@ -118,9 +118,9 @@ namespace MDACS.Server
                 return;
             }
 
-//#if DOUBLE_ENDED_STREAM_DEBUG
+#if DOUBLE_ENDED_STREAM_DEBUG
             Console.WriteLine($"{this}.Close: Closing stream.");
-//#endif
+#endif
 
             Chunk chunk = new Chunk();
                 
