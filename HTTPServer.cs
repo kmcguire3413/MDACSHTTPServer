@@ -13,9 +13,9 @@ namespace MDACS.Server
     {
         public static void WriteLine(string line)
         {
-#if DEBUG
-            System.Console.WriteLine($"--->{line}");
-#endif
+//#if DEBUG
+//            System.Console.WriteLine($"--->{line}");
+//#endif
         }
     }
 
@@ -67,8 +67,6 @@ namespace MDACS.Server
 #pragma warning disable 4014
                 Task.Run(async () =>
                 {
-                    Console.WriteLine("Authenticating as server through SSL/TLS.");
-
                     try
                     {
                         HTTPDecoder http_decoder;
@@ -76,22 +74,21 @@ namespace MDACS.Server
 
                         if (ssl_sock != null)
                         {
+                            Console.WriteLine("Accepting SSL client.");
                             await ssl_sock.AuthenticateAsServerAsync(x509);
 
                             http_decoder = new HTTPDecoder(ssl_sock);
                             http_encoder = new HTTPEncoder(ssl_sock);
                         } else
                         {
+                            Console.WriteLine("Accepting client.");
                             http_decoder = new HTTPDecoder(client_stream);
                             http_encoder = new HTTPEncoder(client_stream);
                         }
 
                         var http_client = handler.CreateClient(http_decoder, http_encoder);
 
-                        Console.WriteLine("Handling client.");
-
                         await http_client.Handle();
-                        Console.WriteLine("closing everything possible");
 
                         if (ssl_sock != null)
                         {
@@ -101,12 +98,11 @@ namespace MDACS.Server
 
                         client.Close();
                         client.Dispose();
-                        Console.WriteLine("closed everything possible");
                     } catch (Exception e)
                     {
-                        Console.WriteLine("==== EXCEPTION ON CLIENT ACCEPT ====");
-                        Console.WriteLine(e.ToString());
-                        Console.WriteLine(e.StackTrace);
+                        Console.WriteLine("Client Exception:");
+                        Console.WriteLine($"Description: {e.ToString()}");
+                        Console.WriteLine($"Stack:\n{e.StackTrace}");
                     }
                 });
 #pragma warning restore 4014

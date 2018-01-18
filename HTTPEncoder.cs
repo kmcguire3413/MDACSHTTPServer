@@ -1,6 +1,4 @@
-﻿#define DEBUG_HTTP_ENCODER
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -59,12 +57,8 @@ namespace MDACS.Server
             header.Add("Access-Control-Allow-Methods", "GET, POST");
             header.Add("Access-Control-Allow-Headers", "content-type");
 
-#if DEBUG_HTTP_ENCODER
-            Console.WriteLine($"{this}.DoHeaders: Sending headers.");
-#endif
             String _line = String.Format("HTTP/1.1 {0} {1}\r\n", response_code, response_text);
             byte[] _line_bytes = Encoding.UTF8.GetBytes(_line);
-            Console.WriteLine("@@@method");
             await s.WriteAsync(_line_bytes, 0, _line_bytes.Length);
 
             foreach (var pair in header)
@@ -74,13 +68,10 @@ namespace MDACS.Server
                     continue;
                 }
 
-                Console.WriteLine(String.Format("Sent line; {0}={1}", pair.Key, pair.Value));
-
                 String line = String.Format("{0}: {1}\r\n", pair.Key, pair.Value);
 
                 byte[] line_bytes = Encoding.UTF8.GetBytes(line);
 
-                Console.WriteLine("@@@header");
                 await s.WriteAsync(line_bytes, 0, line_bytes.Length);
             }
 
@@ -111,9 +102,6 @@ namespace MDACS.Server
 
             //await DoHeaders();
 
-#if DEBUG_HTTP_ENCODER
-            Console.WriteLine($"{this}.WriteSingleChunk: Sending single chunk.");
-#endif
             // TODO: fix incompatability with Python pycommon or fix pycommon
             // BUG: fix incompatability with Python pycommon or fix pycommon
             /*byte[] tmp = new byte[2];
@@ -169,10 +157,6 @@ namespace MDACS.Server
 
             await DoHeaders();
 
-#if DEBUG_HTTP_ENCODER
-            Console.WriteLine($"{this}.BodyWriteFirstChunk: Sending the first chunk.");
-#endif
-
             byte[] tmp = new byte[2];
             tmp[0] = (byte)'\r';
             tmp[1] = (byte)'\n';
@@ -181,8 +165,6 @@ namespace MDACS.Server
 
             var chunk_header_str = String.Format("{0:x}\r\n", length);
             byte[] chunk_header = Encoding.UTF8.GetBytes(chunk_header_str);
-
-            Console.WriteLine($"chunk_header_str={chunk_header_str}");
 
             await s.WriteAsync(chunk_header, 0, chunk_header.Length);
             await s.WriteAsync(buf, offset, length);
@@ -199,14 +181,8 @@ namespace MDACS.Server
                 throw new Exception("State should have been sending of chunked response, but was content-length or headers expecting.");
             }
 
-#if DEBUG_HTTP_ENCODER
-            Console.WriteLine($"{this}.BodyWriteNextChunk: Writing chunk.");
-#endif
-
             var chunk_header_str = String.Format("{0:x}\r\n", length);
             byte[] chunk_header = Encoding.UTF8.GetBytes(chunk_header_str);
-
-            Console.WriteLine($"chunk_header_str={chunk_header_str}");
 
             await s.WriteAsync(chunk_header, 0, chunk_header.Length);
             await s.WriteAsync(buf, offset, length);
@@ -224,10 +200,6 @@ namespace MDACS.Server
             {
                 throw new Exception("State should have been sending of chunked response, but was content-length or headers expecting.");
             }
-
-#if DEBUG_HTTP_ENCODER
-            Console.WriteLine($"{this}.BodyWriteNoChunk: Writing last chunk.");
-#endif
 
             byte[] chunk_header = Encoding.UTF8.GetBytes("0\r\n\r\n");
             await s.WriteAsync(chunk_header, 0, chunk_header.Length);

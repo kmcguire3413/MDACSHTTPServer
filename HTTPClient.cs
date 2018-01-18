@@ -1,6 +1,4 @@
-﻿#define PROXY_HTTP_ENCODER_DEBUG
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -170,9 +168,7 @@ namespace MDACS.Server
                 }
             }
 
-            Console.WriteLine("!!! waiting on ready");
             await this.ready.WaitAsync();
-            Console.WriteLine("!!! ready was good");
             await encoder.WriteHeader(header);
 
             sent_header = true;
@@ -218,43 +214,22 @@ namespace MDACS.Server
             byte[] buf = new byte[1024 * 4];
             bool first_chunk = true;
 
-#if PROXY_HTTP_ENCODER_DEBUG
-            Console.WriteLine($"{this}.BodyWriteStreamInternal: Now running.");
-#endif
-
             do
             {
-#if PROXY_HTTP_ENCODER_DEBUG
-                Console.WriteLine($"{this}.BodyWriteStreamInternal: Doing ReadAsync on stream.");
-#endif
                 var cnt = await inpstream.ReadAsync(buf, 0, buf.Length);
-
-#if PROXY_HTTP_ENCODER_DEBUG
-                Console.WriteLine($"{this}.BodyWriteStreamInternal: Read cnt={cnt} buf={buf} buf.Length={buf.Length}");
-#endif
 
                 if (cnt < 1)
                 {
-#if PROXY_HTTP_ENCODER_DEBUG
-                    Console.WriteLine($"{this}.BodyWriteStreamInternal: End of stream.");
-#endif
                     break;
                 }
 
                 if (first_chunk)
                 {
-#if PROXY_HTTP_ENCODER_DEBUG
-                    Console.WriteLine($"{this}.BodyWriteStreamInternal: First chunk.");
-#endif
                     await this.encoder.BodyWriteFirstChunk(buf, 0, cnt);
                     first_chunk = false;
                 }
                 else
                 {
-#if PROXY_HTTP_ENCODER_DEBUG
-                    Console.WriteLine($"{this}.BodyWriteStreamInternal: Next chunk.");
-#endif
-
                     await this.encoder.BodyWriteNextChunk(buf, 0, cnt);
                 }
             } while (true);
@@ -274,9 +249,6 @@ namespace MDACS.Server
         /// <returns>A Task with the return value of a Task. Both shall be awaited.</returns>
         public async Task<Task> BodyWriteStream(Stream inpstream)
         {
-#if PROXY_HTTP_ENCODER_DEBUG
-            Console.WriteLine($"{this}.BodyWriteStream: Starting task to copy from stream into the real encoder.");
-#endif
             this.stream_being_used = inpstream;
 
             await this.ready.WaitAsync();
@@ -358,11 +330,7 @@ namespace MDACS.Server
             outheader.Add("$response_code", "200");
             outheader.Add("$response_text", "OK");
 
-            Console.WriteLine("Sending response header now.");
-
             await encoder.WriteHeader(outheader);
-
-            Console.WriteLine("Sending response body now.");
 
             MemoryStream ms = new MemoryStream();
 
@@ -378,8 +346,6 @@ namespace MDACS.Server
 
             //await encoder.BodyWriteSingleChunk("response test body");
             await encoder.BodyWriteStream(ms);
-
-            Console.WriteLine("Response has been sent.");
 
             return Task.CompletedTask;
         }
@@ -405,7 +371,6 @@ namespace MDACS.Server
                 {
                     ProxyHTTPEncoder phe;
 
-                    Console.WriteLine("waiting on qchanged");
                     await qchanged.WaitAsync();
 
                     // Only lock long enough to get the first item.
@@ -413,13 +378,11 @@ namespace MDACS.Server
                     {
                         if (runner_abort)
                         {
-                            Console.WriteLine("runner has aborted");
                             return;
                         }
 
                         if (runner_exit && q.Count == 0)
                         {
-                            Console.WriteLine("runner has exited");
                             return;
                         }
 
@@ -429,24 +392,19 @@ namespace MDACS.Server
                     if (phe == null)
                     {
                         // The exit signal.
-                        Console.WriteLine("peeked null; now exiting");
                         break;
                     }
 
                     // Signal this object that it is ready to do work.
                     phe.ready.Set();
-                    Console.WriteLine("signaling phe as ready");
 
                     // Wait until it is done.
                     await phe.done.WaitAsync();
-
-                    Console.WriteLine("phe is done");
 
                     await phe.Death();
 
                     // Remove it, and signal the next to go.
                     q.Dequeue();
-                    Console.WriteLine("phe dequeued");
                 }
             });
 #pragma warning restore 4014
@@ -455,7 +413,7 @@ namespace MDACS.Server
 
             while (!close_connection)
             {
-                Console.WriteLine("###### Handling the next request. ######");
+                //Console.WriteLine("###### Handling the next request. ######");
                 // Need a way for this to block (await) until the body has been completely
                 // read. This logic could be implemented inside the decoder.
                 List<String> line_header;
@@ -470,11 +428,11 @@ namespace MDACS.Server
                     break;
                 }
 
-                Console.WriteLine("Header to dictionary.");
+                //Console.WriteLine("Header to dictionary.");
 
                 if (line_header == null)
                 {
-                    Console.WriteLine("Connection has been lost.");
+                    //Console.WriteLine("Connection has been lost.");
                     break;
                 }
 
@@ -482,13 +440,13 @@ namespace MDACS.Server
 
                 Stream body;
 
-                Console.WriteLine("Got header.");
+                //Console.WriteLine("Got header.");
 
                 Task body_reading_task;
 
                 if (header.ContainsKey("content-length"))
                 {
-                    Console.WriteLine("Got content-length.");
+                    //Console.WriteLine("Got content-length.");
                     // Content length specified body follows.
                     long content_length = (long)Convert.ToUInt32(header["content-length"]);
 
@@ -496,13 +454,13 @@ namespace MDACS.Server
                 }
                 else if (header.ContainsKey("transfer-encoding"))
                 {
-                    Console.WriteLine("Got chunked.");
+                    //Console.WriteLine("Got chunked.");
                     // Chunked encoded body follows.
                     (body, body_reading_task) = await decoder.ReadBody(HTTPDecoderBodyType.ChunkedEncoding());
                 }
                 else
                 {
-                    Console.WriteLine("Got no body.");
+                    //Console.WriteLine("Got no body.");
                     // No body follows. (Not using await to allow pipelining.)
                     (body, body_reading_task) = await decoder.ReadBody(HTTPDecoderBodyType.NoBody());
                 }
@@ -515,7 +473,7 @@ namespace MDACS.Server
                     close_connection = true;
                 }
 
-                Console.WriteLine($"close_connection={close_connection}");
+                //Console.WriteLine($"close_connection={close_connection}");
 
                 var phe = new ProxyHTTPEncoder(encoder, close_connection);
 
@@ -523,7 +481,7 @@ namespace MDACS.Server
 
                 qchanged.Release();
 
-                Console.WriteLine("Allowing handling of request.");
+                //Console.WriteLine("Allowing handling of request.");
 
                 // A couple of scenarios are possible here.
                 // (1) The request can complete and exit before the data it writes is actually sent.
@@ -547,7 +505,7 @@ namespace MDACS.Server
                     // how to gracefully let the client know that things have gone wrong without shutting
                     // the connection down. It is possible to detect if its a chunked-encoding and then use
                     // a trailer header, maybe? Pretty much like a CGI script?
-                    Console.WriteLine("exception in request handler; shutting down connection");
+                    //Console.WriteLine("exception in request handler; shutting down connection");
                     // Ensure the proxy is marked as done. So the runner will throw it away, and also
                     // drop the connection because we are not sure how to proceed now.
                     runner_abort = true;
@@ -558,7 +516,7 @@ namespace MDACS.Server
                     break;
                 }
 
-                Console.WriteLine("Handler released control.");
+                //Console.WriteLine("Handler released control.");
 
                 await next_task;
 
@@ -578,27 +536,27 @@ namespace MDACS.Server
                     // BUG, TODO: unsufficient... will deadlock if nothing is reading the `body` as the buffer may fill
                     //       for the body
                     // Do not block while waiting.
-                    Console.WriteLine("waiting for body_reading_task to complete");
+                    //Console.WriteLine("waiting for body_reading_task to complete");
                     await body_reading_task;
 
                     if (body_reading_task.Exception != null)
                     {
-                        Console.WriteLine("exception in body reader; shutting down connection");
-                        Console.WriteLine(body_reading_task.Exception.ToString());
+                        //Console.WriteLine("exception in body reader; shutting down connection");
+                        //Console.WriteLine(body_reading_task.Exception.ToString());
                         runner_abort = true;
                         phe.done.Set();
                     }
                 }
             }
 
-            Console.WriteLine("httpclient handler trying to exit; once runner has exited");
+            //Console.WriteLine("httpclient handler trying to exit; once runner has exited");
             // Signal the runner that it is time to exit.
             runner_exit = true;
             // Ensure the runner can continue.
             qchanged.Release();
             await runner_task;
 
-            Console.WriteLine("done waiting on runner; now exiting handler");
+            //Console.WriteLine("done waiting on runner; now exiting handler");
 
             // The stream is (expected to be) closed once this method is exited.
         }

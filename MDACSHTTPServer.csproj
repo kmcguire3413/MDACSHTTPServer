@@ -20,6 +20,10 @@ dependable, simple to maintain, and fast.</Description>
     <PackageReleaseNotes>ALPHA RELEASE</PackageReleaseNotes>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;NETSTANDARD2_0</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Remove="mimedb.json" />
   </ItemGroup>
@@ -33,7 +37,7 @@ dependable, simple to maintain, and fast.</Description>
   </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="c:\users\kmcgu\appdata\local\Programs\Python\Python36\python.exe pre-build.py" />
+	  <Exec Command="/usr/bin/python3 pre-build.py" />
   </Target>
 
 </Project>

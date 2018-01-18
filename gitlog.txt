@@ -1,53 +1,73 @@
-* commit 8d55d7ccc34ef6bd3d1072c67c2cd5e7411420b3
-| Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
-| Date:   Sat Jan 6 22:00:35 2018 -0600
-| 
-|     Fixed bug in guessing of extension where dots preceeding the last dot would confuse the selector logic.
-| 
-* commit c01b4e9e06f51a26616e335da6e0fbfe78a1f15a
-| Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
-| Date:   Thu Jan 4 01:13:05 2018 -0600
-| 
-|     Used https://www.npmjs.com/package/mime-db to embed a mimedb.json file which provides the method ContentType_GuessFromFileName for the QuickResponse sugar class. This makes writing responses much easier and less error prone.
-| 
-* commit 7763964428825ce391a73778c49200c12db97448
-| Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
-| Date:   Thu Jan 4 00:36:11 2018 -0600
-| 
-|     + added more ergonomics with method sugar using QuickResponse
-| 
-* commit 15286a40cdbdf1e86118ba920c6d06dc848d2c84
-| Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
-| Date:   Thu Jan 4 00:25:11 2018 -0600
-| 
-|     + added QuickResponse and automatic version increment on build.
-|     + added utility functions under MDACS.Server.Util to help with reading requests.
-|     + added list of HTTP response header fields
-| 
-* commit c722c15d907cb20be1c6a6c3e2ce245487516698
-| Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
-| Date:   Thu Dec 28 18:52:07 2017 -0600
-| 
-|     + Fixed missing interface marker on ProxyHTTPEncoder.
-|     + Ran through manual integration testing.
-|     + Updated release sheet and added new release sheet.
-| 
-* commit 16b8e489d8707004a5ab63bbe027698ad65b1e6a
-| Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
-| Date:   Thu Dec 28 18:13:45 2017 -0600
-| 
-|     Major visibility rework to hide implementation that is not going to have a contract to be backwards compatible.
-|     
-|     Now, only members that should be used by library users are exposed. This should reduce the incidence of someone using something that was never intended to stay the same or reasoned with about staying the same.
-| 
-* commit 7cace1598e03051ffbea26c3980eddf1f92f77b3
-| Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
-| Date:   Thu Dec 28 17:50:27 2017 -0600
-| 
-|     Changes
-|     
-|     + Changed some members of ProxyHTTPEncoder from public to internal so that they are accessible from within the assembly but not outside of it.
-|     + Improved readability of the generic type for SimpleServer.
+*   commit 165194393f13b5295ebda2bc4eec1f3a3abf4b9e
+|\  Merge: ac395f5 d57a77d
+| | Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
+| | Date:   Mon Jan 8 03:22:43 2018 -0600
+| | 
+| |     Merge branch 'master' of https://bitbucket.org/kmcg3413/mdacshttpserver
+| |   
+| *   commit d57a77ddb68f8d02b295e0ee895989a61c72b794
+| |\  Merge: ea88b7a c722c15
+| | | Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
+| | | Date:   Thu Dec 28 20:13:48 2017 -0600
+| | | 
+| | |     Merged nightly into master.
+| | | 
+* | | commit ac395f58994bbf62ff48fdbcb06f6beb410473d0
+| | | Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
+| | | Date:   Mon Jan 8 03:21:12 2018 -0600
+| | | 
+| | |     Changed to release mode which disabled the debugging output to the console.
+| | | 
+* | | commit 8d55d7ccc34ef6bd3d1072c67c2cd5e7411420b3
+| | | Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
+| | | Date:   Sat Jan 6 22:00:35 2018 -0600
+| | | 
+| | |     Fixed bug in guessing of extension where dots preceeding the last dot would confuse the selector logic.
+| | | 
+* | | commit c01b4e9e06f51a26616e335da6e0fbfe78a1f15a
+| | | Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
+| | | Date:   Thu Jan 4 01:13:05 2018 -0600
+| | | 
+| | |     Used https://www.npmjs.com/package/mime-db to embed a mimedb.json file which provides the method ContentType_GuessFromFileName for the QuickResponse sugar class. This makes writing responses much easier and less error prone.
+| | | 
+* | | commit 7763964428825ce391a73778c49200c12db97448
+| | | Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
+| | | Date:   Thu Jan 4 00:36:11 2018 -0600
+| | | 
+| | |     + added more ergonomics with method sugar using QuickResponse
+| | | 
+* | | commit 15286a40cdbdf1e86118ba920c6d06dc848d2c84
+| |/  Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
+|/|   Date:   Thu Jan 4 00:25:11 2018 -0600
+| |   
+| |       + added QuickResponse and automatic version increment on build.
+| |       + added utility functions under MDACS.Server.Util to help with reading requests.
+| |       + added list of HTTP response header fields
+| | 
+* | commit c722c15d907cb20be1c6a6c3e2ce245487516698
+| | Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
+| | Date:   Thu Dec 28 18:52:07 2017 -0600
+| | 
+| |     + Fixed missing interface marker on ProxyHTTPEncoder.
+| |     + Ran through manual integration testing.
+| |     + Updated release sheet and added new release sheet.
+| | 
+* | commit 16b8e489d8707004a5ab63bbe027698ad65b1e6a
+| | Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
+| | Date:   Thu Dec 28 18:13:45 2017 -0600
+| | 
+| |     Major visibility rework to hide implementation that is not going to have a contract to be backwards compatible.
+| |     
+| |     Now, only members that should be used by library users are exposed. This should reduce the incidence of someone using something that was never intended to stay the same or reasoned with about staying the same.
+| | 
+* | commit 7cace1598e03051ffbea26c3980eddf1f92f77b3
+|/  Author: Leonard Kevin McGuire Jr <kmcg3413@gmail.com>
+|   Date:   Thu Dec 28 17:50:27 2017 -0600
+|   
+|       Changes
+|       
+|       + Changed some members of ProxyHTTPEncoder from public to internal so that they are accessible from within the assembly but not outside of it.
+|       + Improved readability of the generic type for SimpleServer.
 |   
 *   commit ea88b7a31e7af85a4774ac19524f48886ff17122
 |\  Merge: 0114b80 a4876b4

@@ -28,22 +28,16 @@ namespace MDACS.Server
         {
             if (BufSpaceLeft() < 1)
             {
-                throw new InvalidOperationException();
+                throw new InvalidOperationException("Not enough buffer space was remaining.");
             }
 
             int cnt = 0;
 
-            try
-            {
-                cnt = await stream.ReadAsync(buf, ndx, buf.Length - ndx);
-            } catch (IOException ex)
-            {
-                throw new InvalidOperationException("I/O exception when trying to read", ex);
-            }
+            cnt = await stream.ReadAsync(buf, ndx, buf.Length - ndx);
 
             if (cnt < 1)
             {
-                throw new InvalidOperationException("I/O read returned less than one byte");
+                throw new IOException("Read from client returned less than one byte.");
             }
 
             ndx += cnt;
@@ -176,7 +170,7 @@ namespace MDACS.Server
 
                 if (line_utf8_str.Length > 0)
                 {
-                    Console.WriteLine($"line_utf8_str={line_utf8_str}");
+                    //Console.WriteLine($"line_utf8_str={line_utf8_str}");
                     header.Add(line_utf8_str);
                 }
             } while (line_utf8_str.Length > 0);
@@ -205,7 +199,7 @@ namespace MDACS.Server
                             var line_bytes = await s_helper.ReadLine();
                             var line = Encoding.UTF8.GetString(line_bytes).TrimEnd();
 
-                            Console.WriteLine($"HTTPDecoder.ChunkedDecoder: line={line}");
+                            //Console.WriteLine($"HTTPDecoder.ChunkedDecoder: line={line}");
 
                             if (line.Length == 0)
                             {
@@ -238,7 +232,7 @@ namespace MDACS.Server
 #pragma warning disable 4014
                     spawned_task = Task.Run(async () =>
                     {
-                        Console.WriteLine("reading content-length body");
+                        //Console.WriteLine("reading content-length body");
 
                         long got = 0;
                         int amount;

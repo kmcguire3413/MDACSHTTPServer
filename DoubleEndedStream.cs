@@ -118,10 +118,6 @@ namespace MDACS.Server
                 return;
             }
 
-#if DOUBLE_ENDED_STREAM_DEBUG
-            Console.WriteLine($"{this}.Close: Closing stream.");
-#endif
-
             Chunk chunk = new Chunk();
                 
             chunk.data = null;
@@ -154,11 +150,6 @@ namespace MDACS.Server
 
         public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default(CancellationToken))
         {
-
-#if DOUBLE_ENDED_STREAM_DEBUG
-            Console.WriteLine("{0}.Read({1}, {2}, {3})", this, buffer, offset, count);
-#endif
-
             if (end_reached)
             {
                 return 0;
@@ -166,18 +157,11 @@ namespace MDACS.Server
 
             await wh.WaitAsync();
 
-#if DOUBLE_ENDED_STREAM_DEBUG
-            Console.WriteLine("wh.Wait() completed; now locking chunks");
-#endif
-
             lock (chunks)
             {
 
                 if (chunks.Count < 1)
                 {
-#if DOUBLE_ENDED_STREAM_DEBUG
-                    Console.WriteLine("{0}.Read: No chunks readable.", this);
-#endif
                     return 0;
                 }
 
@@ -187,18 +171,12 @@ namespace MDACS.Server
 
                 if (chunk.data == null)
                 {
-#if DOUBLE_ENDED_STREAM_DEBUG
-                    Console.WriteLine("{0}.Read: Stream closed on read.", this);
-#endif
                     end_reached = true;
                     return 0;
                 }
 
                 if (count < chunk.actual)
                 {
-#if DOUBLE_ENDED_STREAM_DEBUG
-                    Console.WriteLine("{0}.Read: Read amount less than current chunk. chunk.offset={1} chunk.actual={2}", this, chunk.offset, chunk.actual);
-#endif
                     Array.Copy(chunk.data, chunk.offset, buffer, offset, count);
 
                     // Only take partial amount from the chunk.
@@ -208,9 +186,6 @@ namespace MDACS.Server
                     // Add another thread entry since this items was never actually removed.
                     wh.Release();
 
-#if DOUBLE_ENDED_STREAM_DEBUG
-                    Console.WriteLine($"chunk={chunk} chunk.offset={chunk.offset} chunk.actual={chunk.actual}");
-#endif
                     used -= count;
                     pos += count;
 
@@ -219,9 +194,6 @@ namespace MDACS.Server
                 else
                 {
                     count = chunk.actual;
-#if DOUBLE_ENDED_STREAM_DEBUG
-                    Console.WriteLine("{0}.Read: Read amount equal or greater than current chunk.", this);
-#endif
                     // Take the whole chunk, but no more to keep logic simple.
                     Array.Copy(chunk.data, chunk.offset, buffer, offset, count);
                     chunks.Dequeue();
@@ -255,10 +227,6 @@ namespace MDACS.Server
                 used += count;
                 chunks.Enqueue(chunk);
             }
-
-#if DOUBLE_ENDED_STREAM_DEBUG
-            Console.WriteLine("{0}.Write: Writing chunk of size {1} to stream.", this, count);
-#endif
 
             wh.Release();
         }
