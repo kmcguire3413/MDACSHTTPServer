@@ -421,7 +421,7 @@ namespace MDACS.Server
                 {
                     line_header = await decoder.ReadHeader();
                 }
-                catch (InvalidOperationException ex)
+                catch (InvalidOperationException)
                 {
                     // This happens if the remote closes their transmit channel, yet, we must be careful not to
                     // exit since the remote receive channel may still be open.
