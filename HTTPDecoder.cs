@@ -170,7 +170,7 @@ namespace MDACS.Server
 
                 if (line_utf8_str.Length > 0)
                 {
-                    //Console.WriteLine($"line_utf8_str={line_utf8_str}");
+                    //Debug.WriteLine($"line_utf8_str={line_utf8_str}");
                     header.Add(line_utf8_str);
                 }
             } while (line_utf8_str.Length > 0);
@@ -199,7 +199,7 @@ namespace MDACS.Server
                             var line_bytes = await s_helper.ReadLine();
                             var line = Encoding.UTF8.GetString(line_bytes).TrimEnd();
 
-                            //Console.WriteLine($"HTTPDecoder.ChunkedDecoder: line={line}");
+                            //Debug.WriteLine($"HTTPDecoder.ChunkedDecoder: line={line}");
 
                             if (line.Length == 0)
                             {
@@ -232,7 +232,7 @@ namespace MDACS.Server
 #pragma warning disable 4014
                     spawned_task = Task.Run(async () =>
                     {
-                        //Console.WriteLine("reading content-length body");
+                        //Debug.WriteLine("reading content-length body");
 
                         long got = 0;
                         int amount;

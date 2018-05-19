@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace MDACS.Server
 {
@@ -14,7 +15,7 @@ namespace MDACS.Server
         public static void WriteLine(string line)
         {
 //#if DEBUG
-//            System.Console.WriteLine($"--->{line}");
+//            System.Debug.WriteLine($"--->{line}");
 //#endif
         }
     }
@@ -62,7 +63,7 @@ namespace MDACS.Server
                     ssl_sock = new SslStream(client_stream, false);
                 }
 
-                Console.WriteLine("Have new client.");
+                Debug.WriteLine("Have new client.");
 
 #pragma warning disable 4014
                 Task.Run(async () =>
@@ -74,14 +75,14 @@ namespace MDACS.Server
 
                         if (ssl_sock != null)
                         {
-                            Console.WriteLine("Accepting SSL client.");
+                            Debug.WriteLine("Accepting SSL client.");
                             await ssl_sock.AuthenticateAsServerAsync(x509);
 
                             http_decoder = new HTTPDecoder(ssl_sock);
                             http_encoder = new HTTPEncoder(ssl_sock);
                         } else
                         {
-                            Console.WriteLine("Accepting client.");
+                            Debug.WriteLine("Accepting client.");
                             http_decoder = new HTTPDecoder(client_stream);
                             http_encoder = new HTTPEncoder(client_stream);
                         }

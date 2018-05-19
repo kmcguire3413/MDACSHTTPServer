@@ -413,7 +413,7 @@ namespace MDACS.Server
 
             while (!close_connection)
             {
-                //Console.WriteLine("###### Handling the next request. ######");
+                //Debug.WriteLine("###### Handling the next request. ######");
                 // Need a way for this to block (await) until the body has been completely
                 // read. This logic could be implemented inside the decoder.
                 List<String> line_header;
@@ -428,11 +428,11 @@ namespace MDACS.Server
                     break;
                 }
 
-                //Console.WriteLine("Header to dictionary.");
+                //Debug.WriteLine("Header to dictionary.");
 
                 if (line_header == null)
                 {
-                    //Console.WriteLine("Connection has been lost.");
+                    //Debug.WriteLine("Connection has been lost.");
                     break;
                 }
 
@@ -440,13 +440,13 @@ namespace MDACS.Server
 
                 Stream body;
 
-                //Console.WriteLine("Got header.");
+                //Debug.WriteLine("Got header.");
 
                 Task body_reading_task;
 
                 if (header.ContainsKey("content-length"))
                 {
-                    //Console.WriteLine("Got content-length.");
+                    //Debug.WriteLine("Got content-length.");
                     // Content length specified body follows.
                     long content_length = (long)Convert.ToUInt32(header["content-length"]);
 
@@ -454,13 +454,13 @@ namespace MDACS.Server
                 }
                 else if (header.ContainsKey("transfer-encoding"))
                 {
-                    //Console.WriteLine("Got chunked.");
+                    //Debug.WriteLine("Got chunked.");
                     // Chunked encoded body follows.
                     (body, body_reading_task) = await decoder.ReadBody(HTTPDecoderBodyType.ChunkedEncoding());
                 }
                 else
                 {
-                    //Console.WriteLine("Got no body.");
+                    //Debug.WriteLine("Got no body.");
                     // No body follows. (Not using await to allow pipelining.)
                     (body, body_reading_task) = await decoder.ReadBody(HTTPDecoderBodyType.NoBody());
                 }
@@ -473,7 +473,7 @@ namespace MDACS.Server
                     close_connection = true;
                 }
 
-                //Console.WriteLine($"close_connection={close_connection}");
+                //Debug.WriteLine($"close_connection={close_connection}");
 
                 var phe = new ProxyHTTPEncoder(encoder, close_connection);
 
@@ -481,7 +481,7 @@ namespace MDACS.Server
 
                 qchanged.Release();
 
-                //Console.WriteLine("Allowing handling of request.");
+                //Debug.WriteLine("Allowing handling of request.");
 
                 // A couple of scenarios are possible here.
                 // (1) The request can complete and exit before the data it writes is actually sent.
@@ -505,7 +505,7 @@ namespace MDACS.Server
                     // how to gracefully let the client know that things have gone wrong without shutting
                     // the connection down. It is possible to detect if its a chunked-encoding and then use
                     // a trailer header, maybe? Pretty much like a CGI script?
-                    //Console.WriteLine("exception in request handler; shutting down connection");
+                    //Debug.WriteLine("exception in request handler; shutting down connection");
                     // Ensure the proxy is marked as done. So the runner will throw it away, and also
                     // drop the connection because we are not sure how to proceed now.
                     runner_abort = true;
@@ -516,7 +516,7 @@ namespace MDACS.Server
                     break;
                 }
 
-                //Console.WriteLine("Handler released control.");
+                //Debug.WriteLine("Handler released control.");
 
                 await next_task;
 
@@ -536,27 +536,27 @@ namespace MDACS.Server
                     // BUG, TODO: unsufficient... will deadlock if nothing is reading the `body` as the buffer may fill
                     //       for the body
                     // Do not block while waiting.
-                    //Console.WriteLine("waiting for body_reading_task to complete");
+                    //Debug.WriteLine("waiting for body_reading_task to complete");
                     await body_reading_task;
 
                     if (body_reading_task.Exception != null)
                     {
-                        //Console.WriteLine("exception in body reader; shutting down connection");
-                        //Console.WriteLine(body_reading_task.Exception.ToString());
+                        //Debug.WriteLine("exception in body reader; shutting down connection");
+                        //Debug.WriteLine(body_reading_task.Exception.ToString());
                         runner_abort = true;
                         phe.done.Set();
                     }
                 }
             }
 
-            //Console.WriteLine("httpclient handler trying to exit; once runner has exited");
+            //Debug.WriteLine("httpclient handler trying to exit; once runner has exited");
             // Signal the runner that it is time to exit.
             runner_exit = true;
             // Ensure the runner can continue.
             qchanged.Release();
             await runner_task;
 
-            //Console.WriteLine("done waiting on runner; now exiting handler");
+            //Debug.WriteLine("done waiting on runner; now exiting handler");
 
             // The stream is (expected to be) closed once this method is exited.
         }

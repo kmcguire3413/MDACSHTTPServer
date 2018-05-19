@@ -108,7 +108,7 @@ namespace MDACS.Server
             tmp[0] = (byte)'\r';
             tmp[1] = (byte)'\n';
 
-            Console.WriteLine($"offset={offset} length={length} chunk={chunk}");
+            Debug.WriteLine($"offset={offset} length={length} chunk={chunk}");
 
             await s.WriteAsync(tmp, 0, tmp.Length);
 

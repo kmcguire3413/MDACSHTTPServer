@@ -5,6 +5,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using static MDACS.Server.HTTPClient2;
+using System.Diagnostics;
 
 namespace MDACS.Server
 {
@@ -126,7 +127,7 @@ namespace MDACS.Server
         {
             try
             {
-                Console.WriteLine($"url={request.url}");
+                Debug.WriteLine($"url={request.url}");
 
                 if (!this.handlers.ContainsKey(request.url_absolute))
                 {
