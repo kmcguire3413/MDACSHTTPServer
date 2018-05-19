@@ -35,9 +35,4 @@ dependable, simple to maintain, and fast.</Description>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
   </ItemGroup>
-
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-	  <Exec Command="/usr/bin/python3 pre-build.py" />
-  </Target>
-
 </Project>
